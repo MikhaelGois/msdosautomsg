@@ -1,0 +1,169 @@
+
+/* ===== Tema MS-DOS / CRT ===== */
+:root{
+  --bg:#000000; --green:#00ff66; --green-dim:#00cc55; --line:#003300;
+  --input-bg:#001700; --shadow:0 0 12px rgba(0,255,102,.25), inset 0 0 24px rgba(0,255,102,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--green);
+  font-family:"Iceberg","Courier New",monospace;
+  text-shadow:0 0 2px rgba(0,255,102,.6),0 0 8px rgba(0,255,102,.15);
+  letter-spacing:.3px; filter:contrast(1.03) saturate(1.1);
+}
+
+/* Binary rain canvas */
+#bgCanvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+  pointer-events:none;
+  background:transparent;
+  mix-blend-mode:screen;
+  opacity:0.6;
+}
+
+/* MS-DOS Boot Screen */
+#dosBootScreen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+#dosBootScreen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#dosBootText {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  color: var(--green);
+  white-space: pre-wrap;
+  padding: 20px;
+  text-align: left;
+  max-width: 800px;
+}
+#dosBootText::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* respect reduced motion; allow on all screen sizes */
+@media (prefers-reduced-motion:reduce){
+  #bgCanvas{ display:none !important; }
+}
+
+/* reduce opacity slightly on small devices for battery and readability */
+@media (max-width:700px){
+  #bgCanvas{ opacity:0.45; }
+} 
+.crt::before{
+  content:"";position:fixed;pointer-events:none;z-index:9999;inset:0;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,.03) 0 1px, rgba(0,0,0,.03) 2px 3px);
+  mix-blend-mode:overlay;
+}
+.crt::after{
+  content:"";position:fixed;pointer-events:none;z-index:9998;inset:0;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,0)40%,rgba(0,0,0,.1)70%,rgba(0,0,0,.22)100%);
+  animation:vcr 6s infinite;
+}
+@keyframes vcr{0%,100%{opacity:.12}38%{opacity:.18}52%{opacity:.09}72%{opacity:.16}}
+
+.header{padding:12px 16px;border-bottom:1px solid var(--line)}
+.header h1{margin:0 0 6px;font-size:22px;text-transform:uppercase}
+.header .prompt{color:var(--green-dim)}
+.header-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+.user-badge{color:var(--green-dim);font-size:13px;margin-left:8px;font-family:"Courier New",monospace}
+
+.container{max-width:1100px;margin:16px auto;padding:0 12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:980px){.container{grid-template-columns:1fr}}
+
+.card{border:1px solid var(--line);background:rgba(0,20,0,.12);padding:12px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 10px;font-size:18px;text-transform:uppercase}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row{display:flex;flex-direction:column}
+.form-row label{font-weight:700}
+.form-row input,.form-row select,.form-row textarea{
+  background:var(--input-bg);color:var(--green);border:1px solid var(--green-dim);
+  border-radius:6px;padding:8px 10px;font-family:"Iceberg","Courier New",monospace;box-shadow:inset 0 0 12px rgba(0,255,102,.08);
+}
+.span-2{grid-column:1 / span 2}
+
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+.btn{
+  cursor:pointer;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(0,255,102,0.45);color:var(--green);
+  background:linear-gradient(180deg, rgba(0,20,0,0.95), rgba(0,16,0,0.85));font-weight:900;text-transform:uppercase;box-shadow:0 6px 20px rgba(0,255,102,.06), inset 0 0 14px rgba(0,255,102,.12);
+  font-family:"Iceberg","Courier New",monospace; /* match inputs */
+  font-size:14px; /* stronger */
+  letter-spacing:.8px;
+  text-shadow:0 0 4px rgba(0,255,102,.5);
+  transition:transform .08s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.btn:hover{ box-shadow:0 10px 26px rgba(0,255,102,.12), inset 0 0 16px rgba(0,255,102,.14); }
+.btn:active{ transform:translateY(2px) scale(.98); opacity:.95; }
+.btn:focus{ outline:2px solid rgba(0,255,102,.12); outline-offset:2px; }
+.btn:hover{border-color:var(--green);box-shadow:0 0 10px rgba(0,255,102,.12), inset 0 0 10px rgba(0,255,102,.12)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent}
+/* disabled state */
+.btn[disabled], .btn.disabled{ opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; pointer-events:auto; }
+
+#output,#pwOutput{
+  font-family:"Courier New",monospace;background:#000;color:var(--green);border:1px solid var(--green-dim);
+  box-shadow:inset 0 0 10px rgba(0,255,102,.08);
+}
+
+.footer{margin:10px 0 20px;padding:8px 12px;text-align:center;border-top:1px solid var(--line);color:var(--green-dim)}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:12px;background:var(--input-bg);color:var(--green);
+  border:1px solid var(--green-dim);padding:.6rem .9rem;border-radius:8px;opacity:0;transition:.2s;z-index:9997;box-shadow:var(--shadow);
+}
+
+/* Modal (admin edit / confirm) */
+.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:11000; }
+.modal-backdrop.show{ display:flex; }
+.modal{ background:linear-gradient(180deg,#001a00,#001300); color:var(--green); border:1px solid var(--green-dim); padding:12px; width:min(720px,96%); border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.6); position:relative; font-family:"Courier New",monospace; }
+.modal-header{ display:flex; align-items:center; gap:12px; margin-bottom:8px }
+.modal-header h3{ margin:0; font-size:16px }
+.modal-body{ max-height:60vh; overflow:auto; margin-bottom:12px }
+.modal-footer{ display:flex; gap:8px; justify-content:flex-end }
+.modal .form-row{ margin-bottom:8px }
+.modal-close{ position:absolute; right:8px; top:8px; background:transparent;border:1px solid rgba(0,255,102,.08); color:var(--green); padding:4px 8px; border-radius:6px; cursor:pointer }
+
+/* improved table / admin action styling */
+#records-table tr:hover{ background:rgba(0,255,102,.02) }
+#records-table td, #records-table th{ vertical-align:middle }
+#records-table button{ padding:6px 8px; font-size:12px }
+
+/* Binary transform overlays */
+.binary-overlay{ position:fixed; pointer-events:none; overflow:hidden; }
+.binary-char{ position:absolute; color:var(--green); font-family:monospace; text-shadow:0 0 6px rgba(0,255,102,.45); opacity:1; display:inline-block; font-size:10px; line-height:1; }
+@keyframes binaryFall{ 0%{ transform:translateY(0) rotate(0deg); opacity:1; } 60%{ opacity:1 } 100%{ transform:translateY(140vh) rotate(540deg) scale(.9); opacity:0; } }
+.binary-char{ animation-name:binaryFall; animation-timing-function:cubic-bezier(.2,.8,.3,1); animation-fill-mode:forwards; will-change:transform,opacity; }
+
+/* rebuild (rise) animation: inverse of fall - chars rise and assemble into element */
+.binary-char.rebuild{ animation-name:binaryRebuild; }
+@keyframes binaryRebuild{
+  0%{ transform:translateY(80vh) rotate(-120deg) scale(.6); opacity:0; }
+  55%{ opacity:1; }
+  100%{ transform:translateY(0) rotate(0deg) scale(1); opacity:0; }
+}
+
+/* return animation for restored elements: subtle assemble flash */
+.binary-assembled{ animation: binaryAssemble .42s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes binaryAssemble{ 0%{ transform:scale(.98) blur(3px); filter:brightness(.6); opacity:0.7 } 40%{ transform:scale(1.02) blur(0); filter:brightness(1.4); opacity:1 } 100%{ transform:none; filter:none; opacity:1 } }
+
+@media (max-width:700px){ .binary-char{ opacity:0.95; } }

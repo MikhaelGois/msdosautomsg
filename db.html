@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR" class="crt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Banco de Tickets — MS-DOS UTIL</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .db-controls{max-width:1100px;margin:12px auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:0 12px}
+    .db-table{max-width:1100px;margin:8px auto;padding:12px;overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid rgba(0,255,102,.06);font-family:monospace;font-size:13px}
+    th{color:var(--green-dim);text-transform:uppercase;font-weight:700}
+    .small{width:110px}
+    .filter-row{display:flex;gap:8px;align-items:center}
+    .muted{color:var(--green-dim);font-size:12px}
+  </style>
+</head>
+<body>
+  <header class="header"><h1>Banco de Tickets</h1><div class="prompt">Visualizar, filtrar e exportar registros</div>
+  <div class="header-actions">
+    <button id="btn-back" class="btn ghost" type="button" aria-label="Voltar à página anterior">← Voltar</button>
+    <div id="userBadge" class="user-badge">—</div>
+    <button id="btn-send-me" class="btn ghost" type="button" style="margin-left:6px">Enviar meus dados</button>
+  </div>
+</header>
+
+  <div class="db-controls">
+  <main style="max-width:900px;margin:40px auto;padding:20px;text-align:center">
+    <h1>Banco de Tickets — Removido</h1>
+    <p>As páginas de banco de dados foram desativadas e removidas do site.</p>
+    <p>Volte para a <a href="/">página principal</a>.</p>
+  </main>
+      <label class="muted">Solicitante</label>
+      <input id="f-requester" type="text" placeholder="Nome/usuario" />
+      <label class="muted">Categoria</label>
+      <input id="f-category" type="text" placeholder="Categoria" />
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button id="btn-filter" class="btn">Filtrar</button>
+      <button id="btn-clear" class="btn ghost">Limpar</button>
+      <a id="btn-export" class="btn" href="#">Exportar CSV</a>
+      <button id="btn-export-onedrive" class="btn ghost" style="display:none">Exportar → OneDrive</button>
+    </div>
+  </div>
+
+  <div style="max-width:1100px;margin:8px auto;padding:12px;display:flex;gap:8px;align-items:center">
+    <h2 style="margin:0">Registros</h2>
+    <button id="btn-admin-toggle" class="btn ghost" style="margin-left:auto;display:none">Painel Admin</button>
+  </div>
+  <div class="db-table"><table id="records-table"><thead><tr><th class="small">ID</th><th>Ticket</th><th>Atendente</th><th>Data/Hora</th><th>Categoria</th><th>Subcat</th><th>Solicitante</th><th>Registrado</th><th class="small">Ações</th></tr></thead><tbody></tbody></table></div>
+
+  <div id="adminPanel" style="max-width:1100px;margin:12px auto;padding:12px;display:none;background:rgba(0,0,0,.08);border:1px solid rgba(0,255,102,.04)">
+    <h3>Admin — Usuários</h3>
+    <div id="usersList">Carregando...</div>
+  </div>
+
+  <!-- Modal backdrop (reused for edit and confirms) -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Fechar">✕</button>
+      <div class="modal-header"><h3 id="modalTitle">Título</h3></div>
+      <div class="modal-body" id="modalBody">Conteúdo</div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <footer class="footer"><small>&copy; 2025 — Banco local (arquivo em `data/records.json`).</small></footer>
+
+  <!-- Database removed; scripts not required -->
+  <script src="db.js"></script>
+</body>
+</html>

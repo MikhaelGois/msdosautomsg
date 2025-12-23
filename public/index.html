@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="crt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>MS-DOS — Mensagens (Teams/Requestia) &amp; Senhas</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Removed login redirect: app is now accessible without auth -->
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  
+  <!-- Splash screen MS-DOS -->
+  <div id="dosBootScreen">
+    <div id="dosBootText"></div>
+  </div>
+  
+  <header class="header">
+    <h1>MICROSOFT MS-DOS UTIL — Mensagens & Senhas</h1>
+    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+      <div class="prompt">C:\> Ferramenta de geração automática (PT / EN)</div>
+      <div id="authArea" style="display:flex;gap:8px;align-items:center">
+        <!-- Banco removido: links para pages de DB foram removidos -->
+        <span class="muted" style="font-size:13px">Banco de dados desativado</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ====== Mensagens de Ticket ====== -->
+    <section class="card" id="messageCard">
+      <h2>Mensagens de Ticket</h2>
+
+      <form id="messageForm" class="form-grid" autocomplete="off">
+        <div class="form-row">
+          <label for="channelSelect">Canal</label>
+          <select id="channelSelect">
+            <option value="teams">Microsoft Teams</option>
+            <option value="requestia">Requestia (encerramento)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="messageType">Tipo de mensagem</label>
+          <select id="messageType">
+            <option value="progress">Atendimento / Em andamento</option>
+            <option value="closure">Encerramento</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="categorySelect">Categoria</label>
+          <select id="categorySelect"></select>
+        </div>
+
+        <div class="form-row" id="subcategoryRow">
+          <label for="subcategorySelect">Subcategoria</label>
+          <select id="subcategorySelect"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="ticketId">Ticket</label>
+          <input id="ticketId" type="text" placeholder="#12345" />
+        </div>
+
+        <div class="form-row">
+          <label for="requesterName">Nome do usuário</label>
+          <input id="requesterName" type="text" placeholder="Nome do usuário" />
+        </div>
+
+        <div class="form-row">
+          <label for="username">Usuário (login)</label>
+          <input id="username" type="text" placeholder="ex.: jdoe" />
+        </div>
+
+        <div class="form-row">
+          <label for="agentName">Atendente</label>
+          <input id="agentName" type="text" placeholder="Seu nome" />
+        </div>
+
+        <div class="form-row">
+          <label for="datetime">Data/Hora</label>
+          <input id="datetime" type="datetime-local" />
+        </div>
+
+        <!-- Botões: PT, EN, PT/EN -->
+        <div class="btn-row span-2">
+          <button type="button" id="generateMsgPTBtn" class="btn">Gerar PT</button>
+          <button type="button" id="generateMsgENBtn" class="btn">Gerar EN</button>
+          <button type="button" id="generateMsgDualBtn" class="btn">Gerar PT/EN</button>
+
+          <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
+          <!-- Botão Salvar removido (DB desativado) -->
+          <button type="reset" id="clearMsgBtn" class="btn ghost">Limpar</button>
+        </div>
+
+        <div class="form-row span-2">
+          <label for="output">Mensagem gerada</label>
+          <textarea id="output" rows="12" readonly></textarea>
+        </div>
+      </form>
+    </section>
+
+    <!-- ====== Gerador de Senhas ====== -->
+    <section class="card" id="passwordCard">
+      <h2>Gerador de Senhas (política)</h2>
+
+      <form id="passwordForm" class="form-grid" autocomplete="off">
+        <div class="form-row">
+          <label for="pwName">Nome do usuário</label>
+          <input id="pwName" type="text" placeholder="Nome completo" />
+        </div>
+
+        <div class="form-row">
+          <label for="pwUsername">Login</label>
+          <input id="pwUsername" type="text" placeholder="login/usuário" />
+        </div>
+
+        <div class="form-row">
+          <label for="pwLength">Comprimento</label>
+          <input id="pwLength" type="number" min="12" value="12" />
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox">
+            <input type="checkbox" id="pwSymbols" checked />
+            <span>Incluir símbolos (!@#$%)</span>
+          </label>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" id="generatePwBtn" class="btn">Gerar senha</button>
+          <button type="button" id="copyPwBtn" class="btn">Copiar</button>
+          <button type="reset" id="clearPwBtn" class="btn ghost">Limpar</button>
+        </div>
+
+        <div class="form-row span-2">
+          <label for="pwOutput">Senha gerada</label>
+          <input id="pwOutput" type="text" readonly />
+        </div>
+
+        <div class="span-2">
+          <p><strong>Política:</strong></p>
+          <ul>
+            <li>Diferencia maiúsculas de minúsculas</li>
+            <li>Mínimo de 12 caracteres</li>
+            <li>Inclui ao menos 1 número</li>
+            <li>Inclui ao menos 1 letra minúscula</li>
+            <li>Inclui ao menos 1 letra maiúscula</li>
+            <li>Não contém parte do nome/login</li>
+            <li>Não contém palavra/seq. comum</li>
+          </ul>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>&copy; 2025 — Utilitário MS-DOS de mensagens e senhas.</small>
+  </footer>
+
+  
+  <script src="app.js"></script>
+</body>
+</html>
