@@ -1,0 +1,100 @@
+{"id": 0, "text": "Modelo para Informar Conta Expirada e Solicitar Extensão"}
+{"id": 1, "text": "Subject: Request to Extend Expired Account Access"}
+{"id": 2, "text": "Dear Team,"}
+{"id": 3, "text": "Please extend the account access for the user below. The account has already expired:"}
+{"id": 4, "text": "  Email Address: Weverton.Andre@ext.luxottica.com \n  Employee ID or External Reference: WADSouza \n  Expiration Date: January 18, 2026 \n  Ticket BR: REQ2026000000699"}
+{"id": 5, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 6, "text": "Modelo para Reset de MFA"}
+{"id": 7, "text": "Subject: Request for MFA Reset"}
+{"id": 8, "text": "Dear Team,"}
+{"id": 9, "text": "Please reset the Multi-Factor Authentication (MFA) for the following user:"}
+{"id": 10, "text": "Name: [Full Name] \nUsername: [Username] \nEmail: [Email Address]"}
+{"id": 11, "text": "The user is unable to complete the login process due to MFA issues. Let me know if you \nneed any additional details to process this request."}
+{"id": 12, "text": "Thank you for your assistance."}
+{"id": 13, "text": "Modelo para Usuário Terceiro"}
+{"id": 14, "text": "Subject: Request for Third-Party Luxottica Account"}
+{"id": 15, "text": "Dear Team,"}
+{"id": 16, "text": "Please create a new Luxottica account for the third-party user below:"}
+{"id": 17, "text": "  Full Name: [Full Name] \n  SMTP: [Email Address] \n  Mail Group: [Mail Group] \n  Logon Script: [Script Path] \n  License: [License Type] \n  External Reference or Employee ID: [ID or Reference]"}
+{"id": 18, "text": "  Copy Settings From: [Existing User for Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 19, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 20, "text": "Modelo para Funcionário Interno"}
+{"id": 21, "text": "Subject: Request for New Luxottica Account"}
+{"id": 22, "text": "Dear Team,"}
+{"id": 23, "text": "Please create a new Luxottica account for the user below:"}
+{"id": 24, "text": "  Full Name: [Full Name] \n  SMTP: [Email Address] \n  Mail Group: [Mail Group] \n  Logon Script: [Script Path] \n  License: [License Type] \n  Employee ID: [Employee ID] \n  Copy Settings From: [Existing User for Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 25, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 26, "text": "Modelo para Adicionar E-mail a Grupo(s)"}
+{"id": 27, "text": "Subject: Request to Add Email to Distribution Group(s)"}
+{"id": 28, "text": "Dear Team,"}
+{"id": 29, "text": "Please add the email address below to the specified group(s):"}
+{"id": 30, "text": "  Email Address: [Email Address] \n  Group(s): [Group Name(s)] \n  Ticket BR: [Ticket Number]"}
+{"id": 31, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 32, "text": "Modelo para Remover E-mail de Grupo(s)"}
+{"id": 33, "text": "Subject: Request to Remove Email from Distribution Group(s)"}
+{"id": 34, "text": "Dear Team,"}
+{"id": 35, "text": "Please remove the email address below from the specified group(s):"}
+{"id": 36, "text": "  Email Address: [Email Address] \n  Group(s): [Group Name(s)] \n  Ticket BR: [Ticket Number]"}
+{"id": 37, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 38, "text": "Modelo para Deletar E-mail"}
+{"id": 39, "text": "Subject: Request to Delete Email Account"}
+{"id": 40, "text": "Dear Team,"}
+{"id": 41, "text": "Please delete the email account below:"}
+{"id": 42, "text": "  Email Address: [Email Address] \n  Employee ID or External Reference: [ID or Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 43, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 44, "text": "Modelo para Modificar Conta"}
+{"id": 45, "text": "Subject: Request to Modify Existing Luxottica Account"}
+{"id": 46, "text": "Dear Team,"}
+{"id": 47, "text": "Please update the Luxottica account with the details below:"}
+{"id": 48, "text": "  Email Address: [Current Email Address] \n  Changes Required: [Describe the changes, e.g., update name, add/remove mail"}
+{"id": 49, "text": "groups, change license, etc.]"}
+{"id": 50, "text": "  Employee ID or External Reference: [ID or Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 51, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 52, "text": "Modelo para Modificar Conta Espelhando Outro Usuário"}
+{"id": 53, "text": "Subject: Request to Modify Account by Mirroring Existing User"}
+{"id": 54, "text": "Dear Team,"}
+{"id": 55, "text": "Please update the Luxottica account below to mirror the settings of another user:"}
+{"id": 56, "text": "  Email Address to Modify: [Current Email Address] \n  Mirror Settings From: [Existing User Email or Username] \n  Employee ID or External Reference: [ID or Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 57, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 58, "text": "Modelo para Reativar Conta"}
+{"id": 59, "text": "Subject: Request to Reactivate Email Account"}
+{"id": 60, "text": "Dear Team,"}
+{"id": 61, "text": "Please reactivate the email account below:"}
+{"id": 62, "text": "  Email Address: [Email Address] \n  Employee ID or External Reference: [ID or Reference] \n  Reason for Reactivation: [Provide reason, e.g., employee returned, project"}
+{"id": 63, "text": "resumed]"}
+{"id": 64, "text": "  Ticket BR: [Ticket Number]"}
+{"id": 65, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 66, "text": "Modelo para Problema de Recebimento de E-mails de Terceiros"}
+{"id": 67, "text": "Subject: User Not Receiving Third-Party Emails"}
+{"id": 68, "text": "Dear Team,"}
+{"id": 69, "text": "Please check and resolve the issue below:"}
+{"id": 70, "text": "  Email Address: [User Email Address] \n  Description of Issue: User is not receiving emails from third-party senders. \n  Steps Already Taken: [Optional – e.g., verified spam folder, checked mail flow] \n  Ticket BR: [Ticket Number]"}
+{"id": 71, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 72, "text": "Modelo para Upgrade de Licença"}
+{"id": 73, "text": "Subject: Request to Upgrade Office License from E1 to E3"}
+{"id": 74, "text": "Dear Team,"}
+{"id": 75, "text": "Please upgrade the Office license for the user below:"}
+{"id": 76, "text": "  Email Address: [Email Address] \n  Current License: E1 \n  New License: E3 \n  Employee ID or External Reference: [ID or Reference] \n  Ticket BR: [Ticket Number]"}
+{"id": 77, "text": "Let me know if you need any additional details to process this request. \nThank you for your assistance."}
+{"id": 78, "text": "Subject: Request to Renew Expired Office License (E3)"}
+{"id": 79, "text": "Body:"}
+{"id": 80, "text": "Dear Team,"}
+{"id": 81, "text": "The Office license for the user below has expired. Please proceed with the renewal or \nreactivation:"}
+{"id": 82, "text": "• Email Address: [Email Address] \n• Previous License: E3 \n• Status: Expired \n• Employee ID or External Reference: [ID or Reference] \n• Ticket BR: [Ticket Number]"}
+{"id": 83, "text": "Let me know if you need any additional details to process this request."}
+{"id": 84, "text": "Thank you for your assistance."}
+{"id": 85, "text": "Subject: Request to Unlock User Account"}
+{"id": 86, "text": "Body:"}
+{"id": 87, "text": "Dear Team,"}
+{"id": 88, "text": "Please unlock the account for the user below:"}
+{"id": 89, "text": "• Email Address: [Email Address] \n• Employee ID or External Reference: [ID or Reference] \n• Domain Group: [Domain Group Name] \n• Reason for Unlock: [e.g., Account locked due to multiple failed login attempts] \n• Ticket BR: [Ticket Number]"}
+{"id": 90, "text": "Let me know if you need any additional details to process this request."}
+{"id": 91, "text": "Thank you for your assistance."}
+{"id": 92, "text": "Subject: Request to Block and Deactivate User Access"}
+{"id": 93, "text": "Body:"}
+{"id": 94, "text": "Dear Team,"}
+{"id": 95, "text": "Please proceed with blocking and deactivating all access for the user below:"}
+{"id": 96, "text": "• Email Address: [Email Address] \n• Employee ID or External Reference: [ID or Reference] \n• Domain Group(s): [Domain Group Name(s)] \n• Reason: Employee termination \n• Ticket BR: [Ticket Number]"}
+{"id": 97, "text": "Ensure that all related accounts, permissions, and access to corporate resources are \ndisabled."}
+{"id": 98, "text": "Let me know if you need any additional details to complete this request."}
+{"id": 99, "text": "Thank you for your assistance."}

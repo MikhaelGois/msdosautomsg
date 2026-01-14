@@ -47,21 +47,7 @@ function typewriterDiv(element, text, speed = 30) {
   });
 }
 
-// Boot screen MS-DOS
-async function showDosBootScreen() {
-  const bootScreen = document.getElementById('dosBootScreen');
-  const bootText = document.getElementById('dosBootText');
-  
-  if (!bootScreen || !bootText) return;
-  
-  const fullMessage = 'Microsoft(R) MS-DOS Version 6.22\nStarting MS-DOS...\nLoading system utilities...\nLoading message generator... OK\nLoading password generator... OK\nSystem ready.';
-  
-  await typewriterDiv(bootText, fullMessage, 15);
-  await new Promise(resolve => setTimeout(resolve, 400));
-  bootScreen.classList.add('hidden');
-  await new Promise(resolve => setTimeout(resolve, 400));
-  bootScreen.remove();
-}
+// Boot screen removed (legacy MS-DOS effect)
 
 // Horário local no formato aceito por <input type="datetime-local">
 function nowLocalISO(){
@@ -348,11 +334,7 @@ function boot(){
     toast('Campos limpos.');
   });
 
-  // inicia o fundo de "chuva binária"
-  startBinaryRain();
-  
-  // Efeito de boot MS-DOS ao carregar
-  showDosBootScreen();
+  // Legacy MS-DOS visual effects removed
 }
 
 

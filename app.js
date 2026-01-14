@@ -64,12 +64,8 @@ async function showDosBootScreen() {
   bootScreen.remove();
 }
 
-// Horário local no formato aceito por <input type="datetime-local">
-function nowLocalISO(){
-  const d = new Date();
-  const tzoffset = d.getTimezoneOffset() * 60000;
-  return new Date(Date.now() - tzoffset).toISOString().slice(0,16); // yyyy-MM-ddTHH:mm
-}
+// pequenas utilitárias
+function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 // ===== Categorias/Subcategorias =====
 const categories = {
@@ -89,36 +85,20 @@ const categories = {
   }
 };
 
-// ===== Soluções básicas (PT/EN) =====
+// ===== Soluções básicas (PT apenas) =====
 const basicSolutions = {
-  pt: {
-    usuario: {
-      criacao: "Usuário criado e acessos provisionados.",
-      extensao: "Extensão de acesso concluída.",
-      reativacao: "Usuário reativado e acessos normalizados.",
-      desativacao: "Usuário desativado conforme solicitação."
-    },
-    vpn: { configuracao: "VPN configurada e testada.", senha: "Senha da VPN atualizada com sucesso." },
-    instalacao: "Aplicativo instalado e validado.",
-    genesys: "Ajustes aplicados; funcionamento validado.",
-    so: { formatacao: "Máquina formatada e configurada.", atualizacao: "Sistema atualizado e validado.", configuracao: "Configurações aplicadas e validadas." },
-    sap: "Demanda SAP atendida conforme requerido.",
-    troca: (peca) => `Peça substituída (${peca}) e funcionamento testado.`
+  usuario: {
+    criacao: "Usuário criado e acessos provisionados.",
+    extensao: "Extensão de acesso concluída.",
+    reativacao: "Usuário reativado e acessos normalizados.",
+    desativacao: "Usuário desativado conforme solicitação."
   },
-  en: {
-    usuario: {
-      criacao: "User created and access provisioned.",
-      extensao: "Access extension completed.",
-      reativacao: "User reactivated and access normalized.",
-      desativacao: "User deactivated as requested."
-    },
-    vpn: { configuracao: "VPN configured and tested.", senha: "VPN password updated successfully." },
-    instalacao: "Application installed and validated.",
-    genesys: "Adjustments applied; operation validated.",
-    so: { formatacao: "Machine formatted and configured.", atualizacao: "System updated and validated.", configuracao: "Configurations applied and validated." },
-    sap: "SAP request fulfilled as required.",
-    troca: (part) => `Part replaced (${part}) and operation tested.`
-  }
+  vpn: { configuracao: "VPN configurada e testada.", senha: "Senha da VPN atualizada com sucesso." },
+  instalacao: "Aplicativo instalado e validado.",
+  genesys: "Ajustes aplicados; funcionamento validado.",
+  so: { formatacao: "Máquina formatada e configurada.", atualizacao: "Sistema atualizado e validado.", configuracao: "Configurações aplicadas e validadas." },
+  sap: "Demanda SAP atendida conforme requerido.",
+  troca: (peca) => `Peça substituída (${peca}) e funcionamento testado.`
 };
 
 function fillCategories(){
@@ -169,67 +149,59 @@ function fillSubcategories(){
 }
 
 // Pega a solução básica conforme idioma/categoria/subcategoria
-function getBasicSolution(lang, catKey, subKey){
-  const sol = basicSolutions[lang];
-  if(!sol) return '';
+function getBasicSolution(catKey, subKey){
   switch(catKey){
-    case 'usuario': return sol.usuario[subKey] || '';
-    case 'vpn': return sol.vpn[subKey] || '';
-    case 'instalacao': return sol.instalacao + (subKey ? ` (${subKey})` : '');
-    case 'genesys': return sol.genesys;
-    case 'so': return sol.so[subKey] || '';
-    case 'sap': return sol.sap;
-    case 'troca': return sol.troca(subKey || 'peça');
+    case 'usuario': return basicSolutions.usuario[subKey] || '';
+    case 'vpn': return basicSolutions.vpn[subKey] || '';
+    case 'instalacao': return basicSolutions.instalacao + (subKey ? ` (${subKey})` : '');
+    case 'genesys': return basicSolutions.genesys;
+    case 'so': return basicSolutions.so[subKey] || '';
+    case 'sap': return basicSolutions.sap;
+    case 'troca': return basicSolutions.troca(subKey || 'peça');
     default: return '';
   }
 }
 
 // Monta a mensagem (com fallback de data/hora)
-function buildMessage(lang){
+// Gera mensagem (PT apenas). Mensagens usam variações para evitar repetição.
+function buildMessage(){
   const categorySelect = $("categorySelect");
   const subcategorySelect = $("subcategorySelect");
   const subcategoryRow = $("subcategoryRow");
   const channelSelect = $("channelSelect");
   const messageType = $("messageType");
-
   const catLabel = categorySelect.options[categorySelect.selectedIndex]?.text || '';
   const subLabel = (subcategoryRow.style.display === 'none')
     ? '' : (subcategorySelect.options[subcategorySelect.selectedIndex]?.text || '');
 
-  // Usa o valor do campo; se estiver vazio, aplica "agora" e reflete no campo
-  let dtRaw = ($("datetime").value || '');
-  if (!dtRaw) {
-    dtRaw = nowLocalISO();
-    $("datetime").value = dtRaw;
-  }
-  const dt = dtRaw.replace('T',' ');
-
   const id = ($("ticketId").value || '').trim() || 'XXX';
-  const req = ($("requesterName").value || '').trim() || (lang==='pt' ? 'usuário' : 'user');
-  const agt = ($("agentName").value || '').trim() || (lang==='pt' ? 'suporte' : 'support');
+  const req = ($("requesterName").value || '').trim() || 'usuário';
 
   const catKey = categorySelect.value;
   const subKey = (subcategoryRow.style.display === 'none') ? '' : (subcategorySelect.value || '');
-  const basic = getBasicSolution(lang, catKey, subKey);
+  const basic = getBasicSolution(catKey, subKey);
 
   const isTeams = channelSelect.value === 'teams';
   const isClosure = messageType.value === 'closure';
 
+  // variações para tornar as mensagens menos repetitivas
+  const greetings = ['Olá', 'Bom dia', 'Boa tarde', 'Olá, tudo bem?'];
+  const intros = ['Estou verificando', 'Iniciando atendimento sobre', 'Analisando'];
+  const closings = ['Fico à disposição.', 'Qualquer dúvida, me retorne.', 'Permaneço à disposição.'];
+
+  const greet = randomOf(greetings);
+  const intro = randomOf(intros);
+  const sign = randomOf(closings);
+
   let msg = '';
   if(isTeams){
-    if(lang === 'pt'){
-      msg = !isClosure
-        ? `Olá ${req}, tudo bem?\nEstou atendendo o chamado #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução básica: ' + basic + '\n' : ''}Fico à disposição por aqui.\nResponsável: ${agt} | ${dt}`
-        : `Olá ${req},\nEncerramos o chamado #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução aplicada: ' + basic + '\n' : ''}Se algo não estiver resolvido, responda por aqui que reabrimos.\nResponsável: ${agt} | ${dt}`;
+    if(!isClosure){
+      msg = `${greet} ${req},\n${intro} o chamado #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução sugerida: ' + basic + '\n' : ''}${sign}`;
     } else {
-      msg = !isClosure
-        ? `Hi ${req}, hope you are well.\nI am working on ticket #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Basic solution: ' + basic + '\n' : ''}Feel free to reply here if you need anything.\nOwner: ${agt} | ${dt}`
-        : `Hello ${req},\nWe have closed ticket #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Applied solution: ' + basic + '\n' : ''}If anything is not resolved, please reply here and we will reopen.\nOwner: ${agt} | ${dt}`;
+      msg = `${greet} ${req},\nEncerramos o chamado #${id} — ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução aplicada: ' + basic + '\n' : ''}Se não estiver resolvido, por favor responda aqui.\n${sign}`;
     }
   } else {
-    msg = (lang==='pt')
-      ? `Chamado #${id} encerrado.\nCategoria: ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução: ' + basic + '\n' : ''}Data/Hora: ${dt}\nResponsável: ${agt}`
-      : `Ticket #${id} closed.\nCategory: ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solution: ' + basic + '\n' : ''}Date/Time: ${dt}\nOwner: ${agt}`;
+    msg = `Chamado #${id} ${isClosure ? 'encerrado' : 'em andamento'}.\nCategoria: ${catLabel}${subLabel ? ' / ' + subLabel : ''}.\n${basic ? 'Solução: ' + basic + '\n' : ''}${sign}`;
   }
   return msg.trim();
 }
@@ -240,9 +212,7 @@ function boot(){
   if(typeof initCloudAuth === 'function'){
     initCloudAuth().then((ok)=>{ if(ok) toast('Modo nuvem ativado (Firestore)'); else toast('Modo local — nuvem não ativada'); }).catch(()=>{ toast('Modo local — falha ao ativar nuvem'); });
   }
-  // Pré-preenche com o horário atual na primeira carga
-  const dt = $("datetime");
-  if (dt && !dt.value) dt.value = nowLocalISO();
+  // data/hora removidos da UI — não préenche
 
   fillCategories();
   fillSubcategories();
@@ -252,10 +222,9 @@ function boot(){
 
   const out = $("output");
 
-  // Atualiza a data/hora no momento do clique e gera
+  // Gera mensagem em PT (apenas)
   $("generateMsgPTBtn")?.addEventListener('click', async ()=>{
-    $("datetime").value = nowLocalISO();
-    const msg = buildMessage('pt');
+    const msg = buildMessage();
     await typewriterEffect(out, msg, 20);
   });
 
@@ -264,34 +233,41 @@ function boot(){
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); $("saveRecordBtn")?.click(); }
   });
 
+  // require analyst identification (no password)
+  function setAnalyst(name){
+    if(!name) return false;
+    localStorage.setItem('analystName', name);
+    document.querySelectorAll('.analyst-name').forEach(el=>el.textContent = name);
+    return true;
+  }
+  let analyst = localStorage.getItem('analystName');
+  if(!analyst){
+    const name = prompt('Enter your analyst name (required):');
+    if(name && name.trim()){ setAnalyst(name.trim()); analyst = name.trim(); }
+  } else {
+    document.querySelectorAll('.analyst-name').forEach(el=>el.textContent = analyst);
+  }
+
   // Authentication removed: cloud auth/UI disabled to simplify deployment
 
   // Save removed: database functionality disabled in local UI
 
-  $("generateMsgENBtn")?.addEventListener('click', async ()=>{
-    $("datetime").value = nowLocalISO();
-    const msg = buildMessage('en');
-    await typewriterEffect(out, msg, 20);
-  });
 
-  $("generateMsgDualBtn")?.addEventListener('click', async ()=>{
-    $("datetime").value = nowLocalISO();
-    const pt = buildMessage('pt');
-    const en = buildMessage('en');
-    const msg = `${pt}\n\n---\n\n${en}`;
-    await typewriterEffect(out, msg, 20);
-  });
+  // (EN / dual removidos)
 
   $("copyMsgBtn")?.addEventListener('click', async ()=>{
     if(!out.value) return;
     try{ await navigator.clipboard.writeText(out.value); toast('Copiado!'); }
     catch(e){ toast('Copie manualmente o texto.'); }
+    // tentativa de salvar chamado no banco local (se o servidor estiver disponível)
+    try{
+      await fetch('/api/save-ticket', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ticket: $("ticketId").value || '', requester: $("requesterName").value || '', username: $("username").value || '', category: $("categorySelect").value || '', subcategory: $("subcategorySelect").value || '', message: out.value, analyst: localStorage.getItem('analystName') || '' }) });
+    }catch(e){ /* ignore */ }
   });
 
   $("clearMsgBtn")?.addEventListener('click', ()=>{
     out.value = '';
     $("messageForm").reset();
-    $("datetime").value = nowLocalISO();   // ao limpar, já coloca horário atual
     fillCategories();                      // repopula categorias
     toast('Campos limpos.');
   });
@@ -344,6 +320,11 @@ function boot(){
     if(!pwOut.value) return;
     try{ await navigator.clipboard.writeText(pwOut.value); toast('Copiado!'); }
     catch(e){ toast('Copie manualmente a senha.'); }
+    // salva senha gerada no banco se possível
+    try{
+      await fetch('/api/save-password', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: ($("pwUsername").value||''), name: ($("pwName").value||''), password: pwOut.value, analyst: localStorage.getItem('analystName') || '' }) });
+      toast('Senha salva no histórico.');
+    }catch(e){ /* ignore */ }
   });
 
   $("clearPwBtn")?.addEventListener('click', ()=>{
@@ -352,11 +333,33 @@ function boot(){
     toast('Campos limpos.');
   });
 
-  // inicia o fundo de "chuva binária"
-  startBinaryRain();
-  
-  // Efeito de boot MS-DOS ao carregar
-  showDosBootScreen();
+  // Theme toggle (dark / light) - button with icon
+  const themeBtn = $("themeToggleBtn");
+  function applyTheme(dark){
+    if(dark) { document.body.classList.add('dark'); if(themeBtn) themeBtn.textContent = '☀️'; }
+    else { document.body.classList.remove('dark'); if(themeBtn) themeBtn.textContent = '🌙'; }
+  }
+  try{
+    const pref = localStorage.getItem('themeDark') === '1';
+    applyTheme(pref);
+    if(themeBtn){ themeBtn.addEventListener('click', ()=>{ const now = !document.body.classList.contains('dark'); applyTheme(now); localStorage.setItem('themeDark', now ? '1' : '0'); }); }
+  }catch(e){ /* ignore */ }
+
+  // Tabs: show/hide sections with data-tab (preserve form state)
+  function setupTabs(){
+    const tabButtons = document.querySelectorAll('button[data-tab]') || [];
+    const sections = document.querySelectorAll('section[data-tab]') || [];
+    function showTab(name){
+      sections.forEach(sec=>{ sec.style.display = sec.getAttribute('data-tab')===name ? '' : 'none'; });
+      tabButtons.forEach(b=> b.classList.toggle('active', b.getAttribute('data-tab')===name));
+      localStorage.setItem('activeTab', name);
+    }
+    const saved = localStorage.getItem('activeTab');
+    const initial = saved || (tabButtons[0] && tabButtons[0].getAttribute('data-tab')) || null;
+    if(initial) showTab(initial);
+    tabButtons.forEach(b=> b.addEventListener('click', ()=> showTab(b.getAttribute('data-tab'))));
+  }
+  setupTabs();
 }
 
 

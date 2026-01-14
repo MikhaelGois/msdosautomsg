@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Labeler — Message Utility</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div style="max-width:1100px;margin:24px auto;padding:16px">
+    <h1>Labeling Tool</h1>
+    <p>Use this tool to label extracted parts from the PDF and create training samples.</p>
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button id="prevBtn" class="btn ghost">Previous</button>
+        <button id="nextBtn" class="btn">Next</button>
+        <select id="labelSelect" style="margin-left:8px"><option value="General">General</option></select>
+        <input id="newLabel" placeholder="New label" />
+        <button id="addLabel" class="btn ghost">Add label</button>
+        <button id="saveSample" class="btn">Save sample</button>
+        <button id="trainModel" class="btn">Train model</button>
+      </div>
+      <div id="partBox" style="white-space:pre-wrap;border:1px solid var(--border);padding:12px;border-radius:8px;min-height:180px"></div>
+      <div style="margin-top:12px"><small id="status"></small></div>
+    </div>
+  </div>
+  <script>
+    let parts = [];
+    let idx = 0;
+    async function load(){
+      const res = await fetch('/api/pdfparts'); parts = await res.json(); render();
+      const labRes = await fetch('/api/get-samples'); const labs = await labRes.json(); const sel = document.getElementById('labelSelect'); labs.labels?.forEach(l=>{ const op=document.createElement('option'); op.value=l; op.textContent=l; sel.appendChild(op); });
+    }
+    function render(){
+      document.getElementById('partBox').textContent = parts[idx]?.text || '';
+      document.getElementById('status').textContent = `${idx+1}/${parts.length}`;
+    }
+    document.getElementById('nextBtn').addEventListener('click', ()=>{ idx=Math.min(parts.length-1, idx+1); render(); });
+    document.getElementById('prevBtn').addEventListener('click', ()=>{ idx=Math.max(0, idx-1); render(); });
+    document.getElementById('addLabel').addEventListener('click', ()=>{ const v=document.getElementById('newLabel').value.trim(); if(!v) return; const sel=document.getElementById('labelSelect'); const op=document.createElement('option'); op.value=v; op.textContent=v; sel.appendChild(op); sel.value=v; document.getElementById('newLabel').value=''; });
+    document.getElementById('saveSample').addEventListener('click', async ()=>{
+      const lbl = document.getElementById('labelSelect').value; const text = parts[idx]?.text || '';
+      if(!text) return alert('No text');
+      await fetch('/api/save-sample',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text, label: lbl})});
+      alert('Sample saved');
+    });
+    document.getElementById('trainModel').addEventListener('click', async ()=>{
+      // fetch all saved samples and send to ML service
+      const res = await fetch('/api/get-samples'); const data = await res.json();
+      const samples = data.samples || [];
+      if(samples.length<3) return alert('Need at least 3 samples to train');
+      const ml = await fetch('http://127.0.0.1:5001/train', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ samples }) });
+      const jd = await ml.json(); alert(JSON.stringify(jd));
+    });
+    load();
+  </script>
+</body>
+</html>

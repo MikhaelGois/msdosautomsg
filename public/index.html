@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="crt">
+<html lang="en" class="app-root">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,27 +9,30 @@
   <!-- Removed login redirect: app is now accessible without auth -->
 </head>
 <body>
-  <canvas id="bgCanvas"></canvas>
-  
-  <!-- Splash screen MS-DOS -->
-  <div id="dosBootScreen">
-    <div id="dosBootText"></div>
-  </div>
-  
   <header class="header">
-    <h1>MICROSOFT MS-DOS UTIL — Mensagens & Senhas</h1>
-    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
-      <div class="prompt">C:\> Ferramenta de geração automática (PT / EN)</div>
-      <div id="authArea" style="display:flex;gap:8px;align-items:center">
-        <!-- Banco removido: links para pages de DB foram removidos -->
-        <span class="muted" style="font-size:13px">Banco de dados desativado</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div>
+        <h1>Message & Password Utility</h1>
+        <div class="prompt">Automatic message, password and e-mail generator</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <label for="themeToggle" style="font-size:13px;color:var(--muted);margin-right:6px">Dark</label>
+        <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode" />
       </div>
     </div>
   </header>
 
   <main class="container">
+    <div class="tabbar">
+      <button class="btn ghost" data-tab="messages">Messages</button>
+      <button class="btn ghost" data-tab="emails">Emails</button>
+      <button class="btn ghost" data-tab="passwords">Passwords</button>
+      <a class="btn ghost" href="/labeler.html">Labeler</a>
+      <a class="btn ghost" href="/admin.html">Admin</a>
+      <div class="tab-analyst"><span class="analyst-name"></span></div>
+    </div>
     <!-- ====== Mensagens de Ticket ====== -->
-    <section class="card" id="messageCard">
+    <section class="card" id="messageCard" data-tab="messages">
       <h2>Mensagens de Ticket</h2>
 
       <form id="messageForm" class="form-grid" autocomplete="off">
@@ -74,21 +77,11 @@
           <input id="username" type="text" placeholder="ex.: jdoe" />
         </div>
 
-        <div class="form-row">
-          <label for="agentName">Atendente</label>
-          <input id="agentName" type="text" placeholder="Seu nome" />
-        </div>
-
-        <div class="form-row">
-          <label for="datetime">Data/Hora</label>
-          <input id="datetime" type="datetime-local" />
-        </div>
+        <!-- campo 'Atendente' e 'Data/Hora' removidos para simplificar -->
 
         <!-- Botões: PT, EN, PT/EN -->
         <div class="btn-row span-2">
-          <button type="button" id="generateMsgPTBtn" class="btn">Gerar PT</button>
-          <button type="button" id="generateMsgENBtn" class="btn">Gerar EN</button>
-          <button type="button" id="generateMsgDualBtn" class="btn">Gerar PT/EN</button>
+          <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
 
           <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
           <!-- Botão Salvar removido (DB desativado) -->
@@ -157,10 +150,11 @@
   </main>
 
   <footer class="footer">
-    <small>&copy; 2025 — Utilitário MS-DOS de mensagens e senhas.</small>
+    <small>&copy; 2026 — Message & Password Utility.</small>
   </footer>
 
   
   <script src="app.js"></script>
+  <script src="email_generator.js"></script>
 </body>
 </html>

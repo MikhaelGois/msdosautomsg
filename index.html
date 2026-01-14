@@ -1,35 +1,38 @@
 
 <!DOCTYPE html>
-<html lang="pt-BR" class="crt">
+<html lang="en" class="app-root">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>MS-DOS — Mensagens (Teams/Requestia) &amp; Senhas</title>
+  <title>Message & Password Utility</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- Removed login redirect: app is now accessible without auth -->
 </head>
 <body>
-  <canvas id="bgCanvas"></canvas>
-  
-  <!-- Splash screen MS-DOS -->
-  <div id="dosBootScreen">
-    <div id="dosBootText"></div>
-  </div>
-  
   <header class="header">
-    <h1>MICROSOFT MS-DOS UTIL — Mensagens & Senhas</h1>
-    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
-      <div class="prompt">C:\> Ferramenta de geração automática (PT / EN)</div>
-      <div id="authArea" style="display:flex;gap:8px;align-items:center">
-        <span class="muted">Banco de dados desativado</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div>
+        <h1>Message & Password Utility</h1>
+        <div class="prompt">Automatic message, password and e-mail generator</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="header-analyst">Signed in as: <span class="analyst-name" style="font-weight:700"></span></div>
+        <button id="themeToggleBtn" aria-label="Toggle theme" title="Toggle theme" class="theme-btn">🌙</button>
       </div>
     </div>
   </header>
 
   <main class="container">
+    <nav class="tabbar" style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn ghost" data-tab="messages">Messages</button>
+      <button class="btn ghost" data-tab="emails">Emails</button>
+      <button class="btn ghost" data-tab="passwords">Passwords</button>
+      <a class="btn ghost" href="/labeler.html" style="display:none">Labeler</a>
+      <a class="btn ghost" href="/admin.html" style="display:none">Admin</a>
+    </nav>
     <!-- ====== Mensagens de Ticket ====== -->
-    <section class="card" id="messageCard">
+    <section class="card" id="messageCard" data-tab="messages">
       <h2>Mensagens de Ticket</h2>
 
       <form id="messageForm" class="form-grid" autocomplete="off">
@@ -74,21 +77,11 @@
           <input id="username" type="text" placeholder="ex.: jdoe" />
         </div>
 
-        <div class="form-row">
-          <label for="agentName">Atendente</label>
-          <input id="agentName" type="text" placeholder="Seu nome" />
-        </div>
-
-        <div class="form-row">
-          <label for="datetime">Data/Hora</label>
-          <input id="datetime" type="datetime-local" />
-        </div>
+        <!-- campo 'Atendente' e 'Data/Hora' removidos; o solicitante verá o responsável automaticamente -->
 
         <!-- Botões: PT, EN, PT/EN -->
         <div class="btn-row span-2">
-          <button type="button" id="generateMsgPTBtn" class="btn">Gerar PT</button>
-          <button type="button" id="generateMsgENBtn" class="btn">Gerar EN</button>
-          <button type="button" id="generateMsgDualBtn" class="btn">Gerar PT/EN</button>
+          <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
 
           <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
           <!-- Save removed: DB disabled -->
@@ -102,8 +95,59 @@
       </form>
     </section>
 
+    <!-- ====== Gerador de E-mails (templates) ====== -->
+    <section class="card" id="emailCard" data-tab="emails">
+      <h2>Gerador de E-mails (templates)</h2>
+      <div class="form-grid">
+        <!-- template selection -->
+        <div class="form-row span-2">
+          <label for="templateSelect">Modelo</label>
+          <select id="templateSelect"></select>
+        </div>
+      </div>
+
+      <!-- Subject field - always visible -->
+      <div class="form-grid">
+        <div class="form-row span-2">
+          <label for="emailSubject">Assunto</label>
+          <textarea id="emailSubject" rows="2" placeholder="Assunto do e-mail" class="auto-resize"></textarea>
+        </div>
+      </div>
+
+      <!-- New template section - only visible when 'Novo' is selected -->
+      <div id="newRequirementsRow" class="form-grid">
+        <div class="form-row span-2">
+          <label for="newRequirements">Descreva o que precisa (novo modelo)</label>
+          <textarea id="newRequirements" rows="4" placeholder="Descreva o objetivo, tom e público do e-mail" class="auto-resize"></textarea>
+        </div>
+      </div>
+
+      <!-- Dynamic form fields for selected template -->
+      <div id="templateFieldsContainer" class="form-grid">
+        <div id="templateFields" class="span-2"></div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="form-grid">
+        <div class="btn-row span-2">
+          <button type="button" id="generateEmailBtn" class="btn">Gerar E-mail</button>
+          <button type="button" id="copyEmailBtn" class="btn ghost">Copiar</button>
+          <button type="button" id="clearEmailBtn" class="btn ghost">Limpar</button>
+          <button type="button" id="saveTemplateBtn" class="btn ghost">Salvar modelo</button>
+        </div>
+      </div>
+
+      <!-- Email body output -->
+      <div class="form-grid">
+        <div class="form-row span-2">
+          <label for="emailBodyOutput">Corpo do e-mail gerado</label>
+          <textarea id="emailBodyOutput" rows="12" class="auto-resize"></textarea>
+        </div>
+      </div>
+    </section>
+
     <!-- ====== Gerador de Senhas ====== -->
-    <section class="card" id="passwordCard">
+    <section class="card" id="passwordCard" data-tab="passwords">
       <h2>Gerador de Senhas (política)</h2>
 
       <form id="passwordForm" class="form-grid" autocomplete="off">
@@ -157,11 +201,12 @@
   </main>
 
   <footer class="footer">
-    <small>&copy; 2025 — Utilitário MS-DOS de mensagens e senhas.</small>
+    <small>&copy; 2026 — Message & Password Utility.</small>
   </footer>
 
   
   <script src="app.js"></script>
+  <script src="email_generator.js"></script>
 </body>
 </html>
 ``
