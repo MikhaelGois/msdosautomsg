@@ -1,1 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+Pipfile.lock
+
+# Virtualenv
+.Python
+
+# VSCode
+.vscode/
+.history/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python cache and env
+.python-version
+__pycache__/
+*.pyc
+
+# SQLite and data
+data/
+*.db
+*.sqlite3
+*.sqlite
+
+# Distribution
+*.egg
+*.egg-info
+dist/
+build/
+
+# logs
+*.log
+training_log.txt
+
+# compiled
+*.pyc
+
+# models and artifacts
+*.pkl
+*.model
+output/
 node_modules
