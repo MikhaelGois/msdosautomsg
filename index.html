@@ -252,10 +252,23 @@
           const name = prompt('Nome do modelo a salvar:', defaultName + ' - ' + new Date().toISOString().slice(0,19).replace('T',' '));
           if(!name) return;
           const payload = { name: name, text: 'Subject: ' + subj + '\n\n' + body };
-          const res = await fetch('/api/save-template', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+
+          // first attempt: create
+          let res = await fetch('/api/save-template', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          if(res.status === 409){
+            // template exists
+            const info = await res.json().catch(()=>({}));
+            const existingName = info.name || name;
+            const doOverwrite = confirm(`Um modelo com o nome "${existingName}" já existe. Deseja sobrescrever?`);
+            if(!doOverwrite) return alert('Operação cancelada. Escolha outro nome para salvar.');
+            // resend with overwrite flag
+            payload.overwrite = true;
+            res = await fetch('/api/save-template', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          }
+
           const j = await res.json().catch(()=>({}));
           if(!res.ok) return alert('Erro ao salvar: ' + (j.error || res.statusText));
-          alert('Modelo salvo com sucesso. ID: ' + (j.id || 'desconhecido'));
+          alert((j.updated ? 'Modelo sobrescrito com sucesso.' : 'Modelo salvo com sucesso.') + ' ID: ' + (j.id || 'desconhecido'));
         }catch(err){ alert('Erro ao salvar: ' + err.message); }
       });
     });
