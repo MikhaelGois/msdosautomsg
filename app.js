@@ -185,11 +185,25 @@ function buildMessage(){
   const isClosure = messageType.value === 'closure';
 
   // variações para tornar as mensagens menos repetitivas
-  const greetings = ['Olá', 'Bom dia', 'Boa tarde', 'Olá, tudo bem?'];
+  // greetings adjusted by local time to avoid wrong salutations
+  const greetings = {
+    morning: ['Bom dia', 'Olá'],
+    afternoon: ['Boa tarde', 'Olá'],
+    night: ['Boa noite', 'Olá']
+  };
   const intros = ['Estou verificando', 'Iniciando atendimento sobre', 'Analisando'];
   const closings = ['Fico à disposição.', 'Qualquer dúvida, me retorne.', 'Permaneço à disposição.'];
 
-  const greet = randomOf(greetings);
+  function timeAwareGreeting(){
+    try{
+      const h = new Date().getHours();
+      if(h >= 5 && h < 12) return randomOf(greetings.morning);
+      if(h >= 12 && h < 18) return randomOf(greetings.afternoon);
+      return randomOf(greetings.night);
+    }catch(e){ return 'Olá'; }
+  }
+
+  const greet = timeAwareGreeting();
   const intro = randomOf(intros);
   const sign = randomOf(closings);
 
@@ -208,6 +222,25 @@ function buildMessage(){
 
 // ===== Inicialização segura =====
 function boot(){
+  // Dark mode toggle
+  const themeToggle = $("themeToggle");
+  if(themeToggle){
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if(isDark) document.documentElement.classList.add('dark');
+    themeToggle.checked = isDark;
+    // keep the visible label in sync (shows sun or moon)
+    const themeLabel = document.querySelector('.theme-label');
+    if(themeLabel) themeLabel.classList.toggle('is-dark', isDark);
+    themeToggle.addEventListener('change', ()=>{
+      const dark = themeToggle.checked;
+      document.documentElement.classList.toggle('dark', dark);
+      try{ localStorage.setItem('darkMode', dark); }catch(e){}
+      if(themeLabel) themeLabel.classList.toggle('is-dark', dark);
+    });
+  }
+  // Force compact UI so the page fits viewport without page-level scrolling
+  try{ document.documentElement.classList.add('compact'); }catch(e){ /* ignore */ }
+  
   // try to initialize cloud (Firestore) early — prefer cloud-only operation
   if(typeof initCloudAuth === 'function'){
     initCloudAuth().then((ok)=>{ if(ok) toast('Modo nuvem ativado (Firestore)'); else toast('Modo local — nuvem não ativada'); }).catch(()=>{ toast('Modo local — falha ao ativar nuvem'); });
@@ -347,16 +380,36 @@ function boot(){
 
   // Tabs: show/hide sections with data-tab (preserve form state)
   function setupTabs(){
-    const tabButtons = document.querySelectorAll('button[data-tab]') || [];
-    const sections = document.querySelectorAll('section[data-tab]') || [];
+    const tabButtons = Array.from(document.querySelectorAll('button[data-tab]')) || [];
+    const sections = Array.from(document.querySelectorAll('section[data-tab]')) || [];
+
+    // Ensure ARIA roles exist
+    tabButtons.forEach(btn => {
+      if(!btn.hasAttribute('role')) btn.setAttribute('role','tab');
+      btn.setAttribute('tabindex', '-1');
+    });
+
     function showTab(name){
-      sections.forEach(sec=>{ sec.style.display = sec.getAttribute('data-tab')===name ? '' : 'none'; });
-      tabButtons.forEach(b=> b.classList.toggle('active', b.getAttribute('data-tab')===name));
+      sections.forEach(sec=>{
+        const is = sec.getAttribute('data-tab')===name;
+        sec.hidden = !is;
+        sec.style.display = is ? '' : 'none';
+      });
+      tabButtons.forEach(b=>{
+        const active = b.getAttribute('data-tab')===name;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+        b.setAttribute('tabindex', active ? '0' : '-1');
+      });
+      document.body.classList.remove('tab-messages','tab-emails','tab-passwords');
+      document.body.classList.add('tab-' + name);
       localStorage.setItem('activeTab', name);
     }
+
     const saved = localStorage.getItem('activeTab');
     const initial = saved || (tabButtons[0] && tabButtons[0].getAttribute('data-tab')) || null;
     if(initial) showTab(initial);
+
     tabButtons.forEach(b=> b.addEventListener('click', ()=> showTab(b.getAttribute('data-tab'))));
   }
   setupTabs();
@@ -559,6 +612,30 @@ async function animateElementsToBinary(elems){
   window._binaryAnimating = false;
 }
 
+// ===== Tab switching (nav) =====
+function initTabs(){
+  const tabButtons = Array.from(document.querySelectorAll('.tabbar [data-tab]'));
+  const sections = Array.from(document.querySelectorAll('[data-tab]'));
+
+  function setActive(tab){
+    tabButtons.forEach(b=> b.classList.toggle('active', b.getAttribute('data-tab')===tab));
+    // Apply tab class to body for global theming
+    document.body.classList.remove('tab-messages','tab-passwords','tab-emails');
+    if(tab) document.body.classList.add('tab-'+tab);
+    
+    // Show/hide sections
+    const match = sections.filter(s=>s.getAttribute('data-tab')===tab);
+    if(match.length){ sections.forEach(s=>{ s.style.display = match.includes(s) ? '' : 'none'; }); }
+    try{ localStorage.setItem('activeTab', tab); }catch(e){}
+  }
+
+  tabButtons.forEach(b=> b.addEventListener('click', ()=>{ const t=b.getAttribute('data-tab'); setActive(t); }));
+
+  const last = (function(){ try{ return localStorage.getItem('activeTab'); }catch(e){ return null } })() || 'messages';
+  setActive(last);
+}
+
 // Inicializa quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', boot);
+document.addEventListener('DOMContentLoaded', ()=>{ try{ if(typeof initTabs === 'function') initTabs(); }catch(e){ console.error('initTabs error', e); } });
 

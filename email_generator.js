@@ -1,294 +1,398 @@
 // email_generator.js
-// Cliente simples para geração de e-mails via API com templates do PDF
+// Template-based email generator with mutavel token support
 
-// Field name translations
-const fieldTranslations = {
-  'Email_Address': 'Endereço de E-mail',
-  'Employee_ID_or_External_Reference': 'ID do Funcionário ou Referência Externa',
-  'Ticket_BR': 'Ticket BR',
-  'Ticket_Number': 'Número do Ticket',
-  'ID_or_Reference': 'ID ou Referência',
-  'User_Email': 'E-mail do Usuário',
-  'User_Name': 'Nome do Usuário',
-  'Distribution_Group': 'Grupo de Distribuição',
-  'Current_License': 'Licença Atual',
-  'New_License': 'Nova Licença',
-  'Account_Name': 'Nome da Conta',
-  'Mirror_User': 'Usuário Espelho',
-  'Reason': 'Motivo',
-  'Third_Party_Domain': 'Domínio de Terceiros',
-  'External_Email': 'E-mail Externo'
+// =============================
+// 1) Definição dos templates
+// =============================
+// Use "mutavel" como placeholder
+const templates = [
+  {
+    id: "extend-expired",
+    name: "Request to Extend Expired Account Access",
+    subject: "Request to Extend Expired Account Access",
+    body:
+`Dear Team,
+Please extend the account access for the user below. The account has already expired:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Expiration Date: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Employee ID or External Reference","Expiration Date","Ticket BR"]
+  },
+  {
+    id: "mfa-reset",
+    name: "Request for MFA Reset",
+    subject: "Request for MFA Reset",
+    body:
+`Dear Team,
+Please reset the Multi-Factor Authentication (MFA) for the following user:
+Name: mutavel
+Username: mutavel
+Email: mutavel
+The user is unable to complete the login process due to MFA issues. Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Name","Username","Email"]
+  },
+  {
+    id: "third-party-lux-create",
+    name: "Request for Third-Party Luxottica Account",
+    subject: "Request for Third-Party Luxottica Account",
+    body:
+`Dear Team,
+Please create a new Luxottica account for the third-party user below:
+• Full Name: mutavel
+• SMTP: mutavel
+• Mail Group: mutavel
+• Logon Script: mutavel
+• License: mutavel
+• External Reference or Employee ID: mutavel
+• Copy Settings From: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Full Name","SMTP","Mail Group","Logon Script","License","External Reference or Employee ID","Copy Settings From","Ticket BR"]
+  },
+  {
+    id: "new-lux-create",
+    name: "Request for New Luxottica Account",
+    subject: "Request for New Luxottica Account",
+    body:
+`Dear Team,
+Please create a new Luxottica account for the user below:
+• Full Name: mutavel
+• SMTP: mutavel
+• Mail Group: mutavel
+• Logon Script: mutavel
+• License: mutavel
+• Employee ID: mutavel
+• Copy Settings From: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Full Name","SMTP","Mail Group","Logon Script","License","Employee ID","Copy Settings From","Ticket BR"]
+  },
+  {
+    id: "add-to-dl",
+    name: "Request to Add Email to Distribution Group(s)",
+    subject: "Request to Add Email to Distribution Group(s)",
+    body:
+`Dear Team,
+Please add the email address below to the specified group(s):
+• Email Address: mutavel
+• Group(s): mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Group(s)","Ticket BR"]
+  },
+  {
+    id: "remove-from-dl",
+    name: "Request to Remove Email from Distribution Group(s)",
+    subject: "Request to Remove Email from Distribution Group(s)",
+    body:
+`Dear Team,
+Please remove the email address below from the specified group(s):
+• Email Address: mutavel
+• Group(s): mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Group(s)","Ticket BR"]
+  },
+  {
+    id: "delete-email",
+    name: "Request to Delete Email Account",
+    subject: "Request to Delete Email Account",
+    body:
+`Dear Team,
+Please delete the email account below:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Employee ID or External Reference","Ticket BR"]
+  },
+  {
+    id: "modify-lux",
+    name: "Request to Modify Existing Luxottica Account",
+    subject: "Request to Modify Existing Luxottica Account",
+    body:
+`Dear Team,
+Please update the Luxottica account with the details below:
+• Email Address: mutavel
+• Changes Required: mutavel
+• Employee ID or External Reference: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Changes Required","Employee ID or External Reference","Ticket BR"]
+  },
+  {
+    id: "mirror-lux",
+    name: "Request to Modify Account by Mirroring Existing User",
+    subject: "Request to Modify Account by Mirroring Existing User",
+    body:
+`Dear Team,
+Please update the Luxottica account below to mirror the settings of another user:
+• Email Address to Modify: mutavel
+• Mirror Settings From: mutavel
+• Employee ID or External Reference: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address to Modify","Mirror Settings From","Employee ID or External Reference","Ticket BR"]
+  },
+  {
+    id: "reactivate-email",
+    name: "Request to Reactivate Email Account",
+    subject: "Request to Reactivate Email Account",
+    body:
+`Dear Team,
+Please reactivate the email account below:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Reason for Reactivation: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Employee ID or External Reference","Reason for Reactivation","Ticket BR"]
+  },
+  {
+    id: "3rd-party-not-receiving",
+    name: "User Not Receiving Third-Party Emails",
+    subject: "User Not Receiving Third-Party Emails",
+    body:
+`Dear Team,
+Please check and resolve the issue below:
+• Email Address: mutavel
+• Description of Issue: mutavel
+• Steps Already Taken: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Description of Issue","Steps Already Taken","Ticket BR"]
+  },
+  {
+    id: "upgrade-license",
+    name: "Request to Upgrade Office License from E1 to E3",
+    subject: "Request to Upgrade Office License from E1 to E3",
+    body:
+`Dear Team,
+Please upgrade the Office license for the user below:
+• Email Address: mutavel
+• Current License: mutavel
+• New License: mutavel
+• Employee ID or External Reference: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Current License","New License","Employee ID or External Reference","Ticket BR"]
+  },
+  {
+    id: "renew-e3",
+    name: "Request to Renew Expired Office License (E3)",
+    subject: "Request to Renew Expired Office License (E3)",
+    body:
+`Dear Team,
+The Office license for the user below has expired. Please proceed with the renewal or reactivation:
+• Email Address: mutavel
+• Previous License: mutavel
+• Status: Expired
+• Employee ID or External Reference: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Previous License","Employee ID or External Reference","Ticket BR"]
+  },
+  {
+    id: "unlock-account",
+    name: "Request to Unlock User Account",
+    subject: "Request to Unlock User Account",
+    body:
+`Dear Team,
+Please unlock the account for the user below:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Domain Group: mutavel
+• Reason for Unlock: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Employee ID or External Reference","Domain Group","Reason for Unlock","Ticket BR"]
+  },
+  {
+    id: "block-deactivate",
+    name: "Request to Block and Deactivate User Access",
+    subject: "Request to Block and Deactivate User Access",
+    body:
+`Dear Team,
+Please proceed with blocking and deactivating all access for the user below:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Domain Group(s): mutavel
+• Reason: mutavel
+• Ticket BR: mutavel
+Ensure that all related accounts, permissions, and access to corporate resources are disabled.
+Let me know if you need any additional details to complete this request.
+Thank you for your assistance.`,
+    fieldLabels: ["Email Address","Employee ID or External Reference","Domain Group(s)","Reason","Ticket BR"]
+  }
+];
+
+// =============================
+// 2) Estado e utilitários
+// =============================
+let state = {
+  currentTemplate: null,
+  values: []
 };
 
-function translateFieldName(fieldName) {
-  return fieldTranslations[fieldName] || fieldName.replace(/_/g, ' ');
+const $ = (sel) => document.querySelector(sel);
+
+function getTemplateById(id){
+  return templates.find(t => t.id === id);
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  const templateSelect = document.getElementById('templateSelect');
-  const fieldsBox = document.getElementById('templateFields');
-  const fieldsContainer = document.getElementById('templateFieldsContainer');
-  const generateBtn = document.getElementById('generateEmailBtn');
-  const copyBtn = document.getElementById('copyEmailBtn');
-  const subjectEl = document.getElementById('emailSubject');
-  const bodyOut = document.getElementById('emailBodyOutput');
-  const newRequirementsRow = document.getElementById('newRequirementsRow');
-  const newRequirementsEl = document.getElementById('newRequirements');
+function countPlaceholders(subject, body){
+  const rx = /mutavel/g;
+  const inSubj = (subject.match(rx) || []).length;
+  const inBody = (body.match(rx) || []).length;
+  return [inSubj, inBody, inSubj + inBody];
+}
 
-  // Auto-resize textareas
-  function autoResizeTextarea(textarea) {
-    if (!textarea) return;
-    textarea.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = Math.min(this.scrollHeight, parseInt(getComputedStyle(this).maxHeight)) + 'px';
+function replaceNth(text, token, replacements){
+  let i = 0;
+  return text.replace(new RegExp(token, "g"), () => (replacements[i++] ?? token));
+}
+
+function loadTemplates(){
+  const elTemplate = $("#templateSelect");
+  if(!elTemplate) return;
+  elTemplate.innerHTML = "";
+  templates.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = t.name;
+    elTemplate.appendChild(opt);
+  });
+  setTemplate(templates[0].id);
+}
+
+function renderFields(){
+  const elFields = $("#templateFields");
+  if(!elFields) return;
+
+  const t = state.currentTemplate;
+  const [subjCount, bodyCount, total] = countPlaceholders(t.subject, t.body);
+
+  if (!Array.isArray(state.values) || state.values.length !== total){
+    state.values = Array(total).fill("");
+  }
+
+  elFields.innerHTML = "";
+  const labels = t.fieldLabels && t.fieldLabels.length === total
+    ? t.fieldLabels
+    : Array.from({length: total}, (_,i)=>`Campo ${i+1}`);
+
+  labels.forEach((label, idx) => {
+    const wrap = document.createElement("div");
+    wrap.className = "form-row";
+    
+    const lab = document.createElement("label");
+    lab.textContent = label;
+    lab.setAttribute("for", `f_${idx}`);
+
+    const inp = document.createElement("input");
+    inp.id = `f_${idx}`;
+    inp.placeholder = label;
+    inp.value = state.values[idx] || "";
+    inp.addEventListener("input", e => {
+      state.values[idx] = e.target.value;
+      updatePreview();
     });
-  }
 
-  [subjectEl, bodyOut, newRequirementsEl].forEach(el => autoResizeTextarea(el));
-
-  async function refreshTemplates(){
-    try{
-      const res = await fetch('/api/templates');
-      const list = await res.json();
-      const prev = templateSelect.value;
-      templateSelect.innerHTML = '';
-      const newOpt = document.createElement('option'); newOpt.value='__new__'; newOpt.textContent='✨ Novo (via IA)'; templateSelect.appendChild(newOpt);
-      for(const t of list){
-        const opt = document.createElement('option'); opt.value = t.id; opt.textContent = t.name; templateSelect.appendChild(opt);
-      }
-      if(prev && Array.from(templateSelect.options).some(o=>o.value==prev)){
-        templateSelect.value = prev; await loadTemplate(prev);
-      } else if(list.length){ templateSelect.value = list[0].id; await loadTemplate(list[0].id); }
-    }catch(e){ console.error('refreshTemplates error:', e); }
-  }
-
-  async function loadTemplate(id){
-    console.log('Loading template:', id);
-    const isNew = id === '__new__';
-    newRequirementsRow.style.display = isNew ? 'block' : 'none';
-    fieldsContainer.style.display = isNew ? 'none' : (id && id !== '__new__' ? 'block' : 'none');
-    document.getElementById('saveTemplateBtn').style.display = 'none';
-    
-    try{
-      if(isNew){ 
-        fieldsBox.innerHTML = ''; 
-        subjectEl.value = ''; 
-        bodyOut.value = ''; 
-        newRequirementsEl.value = '';
-        return; 
-      }
-      
-      const res = await fetch('/api/template/' + id);
-      if (!res.ok) throw new Error('Template not found');
-      
-      const data = await res.json();
-      subjectEl.value = data.name || '';
-      fieldsBox.innerHTML = '';
-      if (data.placeholders && data.placeholders.length > 0) {
-        (data.placeholders||[]).forEach(ph=>{
-          const div = document.createElement('div'); div.className='form-row';
-          // show exact placeholder label (with brackets) when available
-          const rawLabel = ph.includes('[') ? ph : ('[' + ph.replace(/_/g,' ') + ']');
-          const lbl = document.createElement('label'); lbl.textContent = rawLabel;
-          // keep id safe: remove non-alphanum
-          const safeId = ph.replace(/[^A-Za-z0-9_]/g,'');
-          const inp = document.createElement('input'); inp.id = 'fld_'+safeId; inp.type='text'; inp.placeholder = 'Insira ' + rawLabel;
-          div.appendChild(lbl); div.appendChild(inp); fieldsBox.appendChild(div);
-        });
-      }
-      bodyOut.value = data.text || '';
-    }catch(e){ 
-      console.error('loadTemplate error:', e);
-      fieldsBox.innerHTML = '';
-      bodyOut.value = '';
-    }
-  }
-
-  // Helper: find template id by name (case-insensitive contains) and populate fields
-  async function populateTemplateFieldsByName(templateName, generatedText){
-    try{
-      const res = await fetch('/api/templates');
-      if(!res.ok) return false;
-      const list = await res.json();
-      const match = list.find(t => (t.name||'').toLowerCase() === (templateName||'').toLowerCase()) || list.find(t => (t.name||'').toLowerCase().includes((templateName||'').toLowerCase()));
-      if(match){
-        // load placeholders
-        const tpl = await fetch('/api/template/' + match.id);
-        if(tpl.ok){
-          const data = await tpl.json();
-          // build fields UI
-          fieldsBox.innerHTML = '';
-          if(data.placeholders && data.placeholders.length){
-            data.placeholders.forEach(ph=>{
-              const div = document.createElement('div'); div.className='form-row';
-              const rawLabel = ph.includes('[') ? ph : ('[' + ph.replace(/_/g,' ') + ']');
-              const lbl = document.createElement('label'); lbl.textContent = rawLabel;
-              const safeId = ph.replace(/[^A-Za-z0-9_]/g,'');
-              const inp = document.createElement('input'); inp.id = 'fld_'+safeId; inp.type='text'; inp.placeholder = 'Insira ' + rawLabel;
-              div.appendChild(lbl); div.appendChild(inp); fieldsBox.appendChild(div);
-            });
-          }
-          // set body to generated text (override template text)
-          if(generatedText) bodyOut.value = generatedText;
-          fieldsContainer.style.display = 'block';
-          newRequirementsRow.style.display = 'none';
-          return true;
-        }
-      }
-      return false;
-    }catch(e){ console.error('populateTemplateFieldsByName error', e); return false; }
-  }
-
-  function analystName(){ return localStorage.getItem('analystName') || ''; }
-  function updateButtons(){ const disabled = !analystName(); generateBtn.disabled = disabled; copyBtn.disabled = disabled; }
-  updateButtons();
-  window.addEventListener('storage', updateButtons);
-
-  templateSelect?.addEventListener('change', ()=>{ loadTemplate(templateSelect.value); });
-
-  generateBtn?.addEventListener('click', async ()=>{
-    console.log('Generate button clicked');
-    const id = templateSelect.value; 
-    if(!id) return alert('Selecione um modelo');
-    
-    const analyst = localStorage.getItem('analystName') || '';
-    let text = '';
-    let finalSubject = '';
-    
-    if(id === '__new__'){
-      const prompt = newRequirementsEl.value || '';
-      const subject = subjectEl.value || '';
-      
-      console.log('Generating new template with prompt:', prompt);
-      if(!prompt) return alert('Preencha a descrição do que precisa para gerar um novo modelo.');
-      if(!subject) return alert('Preencha o assunto do e-mail.');
-      
-      finalSubject = subject;
-      
-      try{
-        console.log('Calling ML service at http://127.0.0.1:5001/generate');
-        const ml = await fetch('http://127.0.0.1:5001/generate', { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify({ text: prompt, fields: { subject: subject, analyst } }) 
-        });
-        
-        if(ml.ok){ 
-          const jd = await ml.json(); 
-          if(jd && jd.text) {
-            text = jd.text;
-            finalSubject = jd.subject || subject;
-            console.log('ML generated successfully:', {intent: jd.intent, template_used: jd.template_used});
-            // If ML reports a template_used, try to populate exact placeholders from that template
-            if(jd.template_used){
-              const ok = await populateTemplateFieldsByName(jd.template_used, jd.text);
-              if(ok){
-                // ensure subject is set from ML
-                subjectEl.value = finalSubject;
-                // stop further fallback handling
-              } else {
-                // fallback: try to extract placeholders from generated text
-                const phs = Array.from(new Set((text.match(/\[([^\]]+)\]/g)||[]).map(s=>s.replace(/\[|\]/g,'').trim().replace(/\s+/g,'_'))));
-                if(phs.length){
-                  fieldsBox.innerHTML = '';
-                  phs.forEach(ph=>{
-                    const div = document.createElement('div'); div.className='form-row';
-                    const rawLabel = ph.includes('[') ? ph : ('[' + ph.replace(/_/g,' ') + ']');
-                    const lbl = document.createElement('label'); lbl.textContent = rawLabel;
-                    const safeId = ph.replace(/[^A-Za-z0-9_]/g,'');
-                    const inp = document.createElement('input'); inp.id = 'fld_'+safeId; inp.type='text'; inp.placeholder = 'Insira ' + rawLabel;
-                    div.appendChild(lbl); div.appendChild(inp); fieldsBox.appendChild(div);
-                  });
-                  fieldsContainer.style.display = 'block'; newRequirementsRow.style.display='none';
-                }
-              }
-            }
-          }
-        } else {
-          console.warn('ML service returned status:', ml.status);
-          throw new Error(`ML service returned ${ml.status}`);
-        }
-      }catch(e){
-        console.warn('ML service error:', e.message);
-        // Fallback: usar template padrão
-        text = `Dear Team,\n\n${prompt}\n\nLet me know if you need any additional information.\n\nThank you for your assistance.`;
-        finalSubject = subject;
-      }
-      
-      // show save button
-      document.getElementById('saveTemplateBtn').style.display = 'inline-block';
-    } else {
-      // substitute placeholders in existing template
-      const inputs = {};
-      fieldsBox.querySelectorAll('input').forEach(i=>{ inputs[i.id.replace('fld_','')] = i.value; });
-      let body = bodyOut.value;
-      for(const k of Object.keys(inputs)){
-        const re = new RegExp('('+k+'):\\s*\\[[^\\]]+\\]','gi');
-        body = body.replace(re, '$1: ' + (inputs[k] || ''));
-      }
-      text = body;
-      finalSubject = subjectEl.value || '';
-      document.getElementById('saveTemplateBtn').style.display = 'none';
-    }
-    
-    // Garantir que o assunto não aparece no corpo
-    if(text.startsWith('Subject:')) {
-      text = text.split('\n').slice(1).join('\n').trim();
-    }
-    
-    console.log('Final text length:', text.length);
-    bodyOut.value = text;
-    subjectEl.value = finalSubject;
-    
-    // Trigger auto-resize
-    bodyOut.style.height = 'auto';
-    bodyOut.style.height = Math.min(bodyOut.scrollHeight, parseInt(getComputedStyle(bodyOut).maxHeight)) + 'px';
+    wrap.appendChild(lab);
+    wrap.appendChild(inp);
+    elFields.appendChild(wrap);
   });
 
-  copyBtn?.addEventListener('click', async ()=>{
-    const subject = subjectEl.value.trim();
-    const body = bodyOut.value.trim();
-    
-    if(!subject) return alert('Preencha o assunto primeiro'); 
-    if(!body) return alert('Gere um e-mail primeiro'); 
-    
-    const full = `Subject: ${subject}\n\n${body}`;
-    
-    try{ 
-      await navigator.clipboard.writeText(full); 
-      alert('✓ Copiado para área de transferência!\n\nAssunto: ' + subject.substring(0, 50) + '...'); 
-    }catch(e){ 
+  updatePreview();
+}
+
+function updatePreview(){
+  const elSubjectPreview = $("#emailSubject");
+  const elBodyPreview = $("#emailBodyOutput");
+  if(!elSubjectPreview || !elBodyPreview) return;
+
+  const t = state.currentTemplate;
+  const [subjCount, bodyCount] = countPlaceholders(t.subject, t.body);
+
+  const subjVals = state.values.slice(0, subjCount);
+  const bodyVals = state.values.slice(subjCount, subjCount + bodyCount);
+
+  const finalSubject = replaceNth(t.subject, "mutavel", subjVals);
+  const finalBody = replaceNth(t.body, "mutavel", bodyVals);
+
+  elSubjectPreview.value = finalSubject;
+  elBodyPreview.value = finalBody;
+}
+
+function setTemplate(id){
+  const t = getTemplateById(id);
+  state.currentTemplate = structuredClone(t);
+  const [, , total] = countPlaceholders(t.subject, t.body);
+  state.values = Array(total).fill("");
+  renderFields();
+}
+
+// =============================
+// 3) Eventos e ações
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+  const elTemplate = $("#templateSelect");
+  const elFields = $("#templateFields");
+  const elSubjectPreview = $("#emailSubject");
+  const elBodyPreview = $("#emailBodyOutput");
+  const btnCopy = $("#copyEmailBtn");
+  const btnReset = $("#clearEmailBtn");
+  const btnGenerate = $("#generateEmailBtn");
+
+  loadTemplates();
+
+  elTemplate?.addEventListener("change", (e)=>{
+    setTemplate(e.target.value);
+  });
+
+  btnCopy?.addEventListener("click", async ()=>{
+    const subject = elSubjectPreview?.value?.trim();
+    const body = elBodyPreview?.value?.trim();
+    if(!subject) return alert("Preencha o assunto primeiro");
+    if(!body) return alert("Gere um e-mail primeiro");
+    const content = `Subject: ${subject}\n\n${body}`;
+    try{
+      await navigator.clipboard.writeText(content);
+      const oldText = btnCopy.textContent;
+      btnCopy.textContent = "Copiado ✔";
+      setTimeout(()=> btnCopy.textContent = oldText, 1200);
+    }catch(e){
       console.error('Copy error:', e);
-      alert('Não foi possível copiar'); 
+      alert("Copie manualmente:\n\n" + content);
     }
   });
 
-  document.getElementById('clearEmailBtn')?.addEventListener('click', ()=>{
-    templateSelect.value = '__new__';
-    subjectEl.value = '';
-    newRequirementsEl.value = '';
-    bodyOut.value = '';
-    fieldsBox.innerHTML = '';
-    newRequirementsRow.style.display = 'block';
-    fieldsContainer.style.display = 'none';
-    document.getElementById('saveTemplateBtn').style.display = 'none';
-    [subjectEl, bodyOut, newRequirementsEl].forEach(el => {
-      el.style.height = 'auto';
-    });
+  btnReset?.addEventListener("click", (e)=>{
+    e.preventDefault();
+    state.values = state.values.map(()=> "");
+    elFields?.querySelectorAll("input").forEach((inp)=> inp.value = "");
+    if(elSubjectPreview) elSubjectPreview.value = "";
+    if(elBodyPreview) elBodyPreview.value = "";
+    updatePreview();
   });
 
-  document.getElementById('saveTemplateBtn')?.addEventListener('click', async ()=>{
-    const text = bodyOut.value || '';
-    if(!text) return alert('Gere o e-mail antes de salvar.');
-    // use subject as name; if empty, create IA-generated name
-    const defaultName = subjectEl.value && subjectEl.value.trim() ? subjectEl.value.trim() : ('IA_Template_' + Date.now());
-    const name = defaultName;
-    try{
-      const res = await fetch('/api/save-template', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, text }) });
-      if(res.ok){ alert('Modelo salvo com sucesso!'); refreshTemplates(); document.getElementById('saveTemplateBtn').style.display='none'; }
-      else{ const jd = await res.json().catch(()=>({})); alert('Erro ao salvar: '+(jd.error||res.statusText)); }
-    }catch(e){ console.error('saveTemplate error', e); alert('Erro ao salvar: ' + e.message); }
+  btnGenerate?.addEventListener("click", ()=>{
+    updatePreview();
   });
-
-  refreshTemplates();
 });

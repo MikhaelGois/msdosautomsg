@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Gerador de Emails por Template</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel-2:#0b1220;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --ok:#22c55e;
+      --border:#1f2937;
+      --warning:#f59e0b;
+      --code:#0b1220;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,"Helvetica Neue",Arial;
+      background:linear-gradient(120deg,#0b1020,#0f172a 40%,#0b1020);
+      color:var(--text);
+      min-height:100dvh;
+    }
+    header{
+      padding:24px 20px 6px;
+      text-align:center;
+    }
+    header h1{margin:0 0 6px;font-size:22px}
+    header p{margin:0;color:var(--muted);font-size:14px}
+    .wrap{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+      padding:16px;
+    }
+    @media (max-width: 980px){
+      .wrap{grid-template-columns:1fr}
+    }
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .card h2{
+      margin:0;padding:14px 16px;font-size:16px;border-bottom:1px solid var(--border);color:#c7d2fe
+    }
+    .inner{padding:14px 16px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    select, input, textarea{
+      width:100%;
+      background:#0b1220;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:10px 12px;
+      font-size:14px;
+      outline:none;
+    }
+    textarea{min-height:140px;resize:vertical;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width: 680px){.fields{grid-template-columns:1fr}}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    button, .ghost{
+      cursor:pointer;border:1px solid var(--border);
+      background:#0b1220;color:var(--text);
+      padding:10px 14px;border-radius:10px;font-size:14px
+    }
+    button.primary{
+      background:linear-gradient(180deg,#2563eb,#1d4ed8);
+      border-color:#1d4ed8;
+    }
+    button.success{
+      background:linear-gradient(180deg,#16a34a,#15803d);
+      border-color:#15803d;
+    }
+    .ghost{
+      text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .preview{
+      background:var(--code);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      white-space:pre-wrap; word-break:break-word
+    }
+    .muted{color:var(--muted)}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+    .badge{
+      display:inline-block; padding:2px 8px; border-radius:999px;
+      font-size:11px; background:#0b1220; border:1px solid var(--border); color:#cbd5e1
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gerador de Emails (Templates Dinâmicos)</h1>
+    <p>Selecione um template, preencha os campos e copie/abra o e-mail em 1 clique.</p>
+  </header>
+
+  <div class="wrap">
+    <!-- Coluna esquerda: seleção de template e campos -->
+    <section class="card">
+      <h2>1) Template & Campos</h2>
+      <div class="inner">
+        <div class="row">
+          <label for="template">Template</label>
+          <select id="template"></select>
+          <div class="hint">
+            <span class="badge">Dica</span> Os campos são gerados automaticamente de acordo com cada ocorrência de <b>"mutavel"</b> no assunto e corpo.
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="fields" id="fields"></div>
+        </div>
+
+        <div class="row grid-2">
+          <div>
+            <label for="to">Para (To)</label>
+            <input id="to" placeholder="ex.: servicedesk@empresa.com" />
+          </div>
+          <div>
+            <label for="cc">Cópia (Cc) <span class="muted">(opcional)</span></label>
+            <input id="cc" placeholder="ex.: gestor@empresa.com" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnMailto">Abrir no e-mail (mailto)</button>
+          <button class="success" id="btnCopy">Copiar assunto e corpo</button>
+          <button id="btnSave" class="ghost">Salvar modelo</button>
+          <button id="btnLoadServer" class="ghost">Carregar do servidor</button>
+          <button id="btnReset" class="ghost">Limpar campos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coluna direita: prévia e conteúdo final -->
+    <section class="card">
+      <h2>2) Pré-visualização</h2>
+      <div class="inner">
+        <div class="row">
+          <label>Assunto</label>
+          <div id="subjectPreview" class="preview"></div>
+        </div>
+        <div class="row">
+          <label>Corpo</label>
+          <div id="bodyPreview" class="preview"></div>
+        </div>
+        <div class="hint">A prévia atualiza automaticamente enquanto você digita.</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =============================
+    // 1) Definição dos templates
+    // =============================
+    // Use "mutavel" como placeholder. Você pode renomear labels para ficar amigável no formulário.
+    const templates = [
+      {
+        id: "extend-expired",
+        name: "Request to Extend Expired Account Access",
+        subject: "Request to Extend Expired Account Access",
+        body:
+`Dear Team,
+Please extend the account access for the user below. The account has already expired:
+• Email Address: mutavel
+• Employee ID or External Reference: mutavel
+• Expiration Date: mutavel
+• Ticket BR: mutavel
+Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+        // Labels dos placeholders (na ordem que aparecem)
+        fieldLabels: ["Email Address","Employee ID or External Reference","Expiration Date","Ticket BR"]
+      },
+      {
+        id: "mfa-reset",
+        name: "Request for MFA Reset",
+        subject: "Request for MFA Reset",
+        body:
+`Dear Team,
+Please reset the Multi-Factor Authentication (MFA) for the following user:
+Name: mutavel
+Username: mutavel
+Email: mutavel
+The user is unable to complete the login process due to MFA issues. Let me know if you need any additional details to process this request.
+Thank you for your assistance.`,
+        fieldLabels: ["Name","Username","Email"]
+      },
+      // ... (other templates omitted for brevity; full list included in original)
+    ];
+
+    // =============================
+    // 2) Estado e utilitários
+    // =============================
+    let state = {
+      currentTemplate: null,
+      values: [] // valores dos campos para o template atual
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+    const elTemplate = $("#template");
+    const elFields = $("#fields");
+    const elSubjectPreview = $("#subjectPreview");
+    const elBodyPreview = $("#bodyPreview");
+    const elTo = $("#to");
+    const elCc = $("#cc");
+    const btnCopy = $("#btnCopy");
+    const btnMailto = $("#btnMailto");
+    const btnReset = $("#btnReset");
+
+    // Popula combo de templates
+    function loadTemplates(){
+      elTemplate.innerHTML = "";
+      templates.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name;
+        elTemplate.appendChild(opt);
+      });
+      // Seleciona o primeiro por padrão
+      setTemplate(templates[0].id);
+    }
+
+    function getTemplateById(id){
+      return templates.find(t => t.id === id);
+    }
+
+    function countPlaceholders(subject, body){
+      // contagem simples de "mutavel" (ordem: primeiro no subject, depois no body)
+      const rx = /mutavel/g;
+      const inSubj = (subject.match(rx) || []).length;
+      const inBody = (body.match(rx) || []).length;
+      return [inSubj, inBody, inSubj + inBody];
+    }
+
+    function replaceNth(text, token, replacements){
+      // Substitui cada ocorrência de "token" pelo item correspondente de "replacements"
+      let i = 0;
+      return text.replace(new RegExp(token, "g"), () => (replacements[i++] ?? token));
+    }
+
+    function sanitizeMailtoText(text){
+      // Normaliza quebras de linha para %0D%0A e escapa RFC 6068
+      return encodeURIComponent(text).replace(/%20/g,"+");
+    }
+
+    // Renderiza campos do formulário com base no template atual
+    function renderFields(){
+      const t = state.currentTemplate;
+      const [subjCount, bodyCount, total] = countPlaceholders(t.subject, t.body);
+
+      // Garante que state.values tenha o tamanho certo
+      if (!Array.isArray(state.values) || state.values.length !== total){
+        state.values = Array(total).fill("");
+      }
+
+      // Gera a UI
+      elFields.innerHTML = "";
+      const labels = t.fieldLabels && t.fieldLabels.length === total
+        ? t.fieldLabels
+        : Array.from({length: total}, (_,i)=>`Campo ${i+1}`);
+
+      labels.forEach((label, idx) => {
+        const wrap = document.createElement("div");
+        const lab = document.createElement("label");
+        lab.textContent = label;
+        lab.setAttribute("for", `f_${idx}`);
+
+        const inp = document.createElement("input");
+        inp.id = `f_${idx}`;
+        inp.placeholder = label;
+        inp.value = state.values[idx] || "";
+        inp.addEventListener("input", e => {
+          state.values[idx] = e.target.value;
+          updatePreview();
+        });
+
+        wrap.appendChild(lab);
+        wrap.appendChild(inp);
+        elFields.appendChild(wrap);
+      });
+
+      updatePreview();
+    }
+
+    function updatePreview(){
+      const t = state.currentTemplate;
+      const [subjCount, bodyCount, total] = countPlaceholders(t.subject, t.body);
+
+      const subjVals = state.values.slice(0, subjCount);
+      const bodyVals = state.values.slice(subjCount, subjCount + bodyCount);
+
+      const finalSubject = replaceNth(t.subject, "mutavel", subjVals);
+      const finalBody = replaceNth(t.body, "mutavel", bodyVals);
+
+      elSubjectPreview.textContent = finalSubject;
+      elBodyPreview.textContent = finalBody;
+    }
+
+    async function setTemplate(id){
+      // remote templates from server are prefixed with 'remote:<id>'
+      if(String(id).startsWith('remote:')){
+        const tid = String(id).split(':')[1];
+        try{
+          const r = await fetch('/api/template/' + encodeURIComponent(tid));
+          if(!r.ok) throw new Error('Template remoto não encontrado');
+          const obj = await r.json();
+          // server returns { id, name, text, placeholders }
+          let subj = obj.name || '';
+          let body = obj.text || '';
+          // if text begins with 'Subject:' extract it
+          const m = (obj.text||'').match(/^Subject:\s*(.*)\r?\n\r?\n([\s\S]*)/i);
+          if(m){ subj = m[1].trim(); body = m[2].trim(); }
+          state.currentTemplate = { id: 'remote:' + obj.id, name: obj.name, subject: subj, body: body, fieldLabels: (obj.placeholders||[]).map(p=>p.replace(/_/g,' ')) };
+        }catch(e){ alert('Falha ao carregar template remoto: ' + e.message); return; }
+      } else {
+        const t = getTemplateById(id);
+        if(!t) return;
+        state.currentTemplate = structuredClone(t);
+      }
+      // zera valores quando troca template
+      const [, , total] = countPlaceholders(state.currentTemplate.subject, state.currentTemplate.body);
+      state.values = Array(total).fill("");
+      renderFields();
+    }
+
+    // =============================
+    // 3) Eventos e ações
+    // =============================
+    elTemplate.addEventListener("change", async (e)=>{
+      await setTemplate(e.target.value);
+    });
+
+    btnCopy.addEventListener("click", async ()=>{
+      const subject = elSubjectPreview.textContent;
+      const body = elBodyPreview.textContent;
+      const content = `Subject: ${subject}\n\n${body}`;
+      try{
+        await navigator.clipboard.writeText(content);
+        btnCopy.textContent = "Copiado ✔";
+        setTimeout(()=> btnCopy.textContent = "Copiar assunto e corpo", 1200);
+      }catch{
+        // Fallback
+        alert("Copie manualmente:\n\n" + content);
+      }
+    });
+
+    btnMailto.addEventListener("click", ()=>{
+      const to = (elTo.value || "").trim();
+      if (!to){
+        alert("Preencha o campo 'Para (To)' antes de abrir o e-mail.");
+        return;
+      }
+      const cc = (elCc.value || "").trim();
+      const subject = elSubjectPreview.textContent;
+      const body = elBodyPreview.textContent;
+      const params = new URLSearchParams();
+      params.set("subject", subject);
+      params.set("body", body);
+
+      // Usamos montagem manual para CC por compatibilidade
+      const base = `mailto:${encodeURIComponent(to)}?` +
+                   (cc ? `cc=${encodeURIComponent(cc)}&` : "") +
+                   `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      window.location.href = base;
+    });
+
+    // Save template to server
+    const btnSave = document.getElementById('btnSave');
+    const btnLoadServer = document.getElementById('btnLoadServer');
+
+    btnSave.addEventListener('click', async ()=>{
+      const defaultName = state.currentTemplate?.name || 'Modelo Personalizado';
+      const name = prompt('Nome do modelo a salvar:', defaultName + ' - ' + new Date().toISOString().slice(0,19).replace('T',' '));
+      if(!name) return;
+      const subject = elSubjectPreview.textContent || '';
+      const body = elBodyPreview.textContent || '';
+      const payload = { name: name, text: 'Subject: ' + subject + "\n\n" + body };
+      try{
+        const r = await fetch('/api/save-template', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const j = await r.json();
+        if(!r.ok) throw new Error(j.error || 'Erro desconhecido');
+        btnSave.textContent = 'Salvo ✔';
+        setTimeout(()=> btnSave.textContent = 'Salvar modelo', 1600);
+      }catch(err){
+        alert('Erro ao salvar: ' + err.message);
+      }
+    });
+
+    // Load templates list from server and add to dropdown
+    btnLoadServer.addEventListener('click', async ()=>{
+      try{
+        const r = await fetch('/api/templates');
+        if(!r.ok) throw new Error('Falha ao listar templates');
+        const list = await r.json();
+        // append remote templates to select with value remote:<id>
+        list.forEach(item => {
+          // avoid duplicates
+          if([...elTemplate.options].some(o=>o.value === 'remote:' + item.id)) return;
+          const opt = document.createElement('option');
+          opt.value = 'remote:' + item.id;
+          opt.textContent = '[Servidor] ' + item.name;
+          elTemplate.appendChild(opt);
+        });
+        alert('Lista de templates do servidor adicionada ao seletor. Escolha um template e ele será carregado.');
+      }catch(e){ alert('Erro: ' + e.message); }
+    });
+
+    btnReset.addEventListener("click", (e)=>{
+      e.preventDefault();
+      state.values = state.values.map(()=> "");
+      // limpa inputs
+      elFields.querySelectorAll("input").forEach((inp)=> inp.value = "");
+      elTo.value = "";
+      elCc.value = "";
+      updatePreview();
+    });
+
+    // Inicializa
+    loadTemplates();
+  </script>
+</body>
+</html>

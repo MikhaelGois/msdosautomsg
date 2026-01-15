@@ -1,70 +1,213 @@
 
-/* EssilorLuxottica Brand - Clean, minimal stylesheet */
+/* Clean/light base with tab colors (Messages green, Emails blue, Passwords red) */
 :root{
-  --bg:#f8faf9; --panel:#ffffff; --muted:#6b7c7a; --accent:#007a6e; --primary:#00a69c; --secondary:#0077c8; --border:#e0e5e4;
-  --shadow:rgba(0,122,110,0.08); --shadow-hover:rgba(0,122,110,0.14);
+  --bg:#f8faf9; --panel:#ffffff; --muted:#6b7c7a; --text:#23302f;
+  --border:#e0e5e4; --shadow:rgba(0,122,110,0.08); --shadow-strong:rgba(0,122,110,0.14);
+  --accent:#007a6e; --primary:#00a69c; --secondary:#0f6ad8;
+  --site-max-width:1100px; /* central width for header, nav and content */
 }
-/* dark theme overrides - opaque, comfortable tones */
 .dark{
-  --bg:#1a2625; --panel:#243432; --muted:#8a9a98; --accent:#00bfb3; --primary:#00a69c; --secondary:#4da6e8; --border:#354240;
-  --shadow:rgba(0,0,0,0.4); --shadow-hover:rgba(0,0,0,0.5);
+  --bg:#0f2b28; --panel:#16322f; --muted:#9fb8b3; --text:#eaf6f4;
+  --border:#2a463f; --shadow:rgba(0,0,0,0.45); --shadow-strong:rgba(0,0,0,0.6);
+  --accent:#33d6c6; --primary:#12b097; --secondary:#5fb2ea;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:#2c3e3b;line-height:1.6}
-.dark{color:#e8efed}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background 0.3s,color 0.3s}
+body{display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow:hidden}
 
-.header{padding:20px 24px;border-bottom:1px solid var(--border);background:transparent}
-.header h1{margin:0;font-size:18px;font-weight:600}
+.header{width:100%;max-width:var(--site-max-width);margin:20px auto;padding:12px 16px;border:1px solid var(--border);background:var(--panel);border-radius:12px;box-shadow:0 8px 26px rgba(15,23,42,0.04)}
+.header h1{margin:0 0 6px;font-size:20px;font-weight:700}
 .header .prompt{color:var(--muted);font-size:13px}
 
-.container{max-width:1200px;margin:18px auto;padding:0 20px;display:grid;grid-template-columns:1fr;gap:18px}
-@media (min-width:1000px){.container{grid-template-columns:1fr 420px;align-items:start}}
+/* Horizontal tab navigation */
+.tabbar-container{max-width:1200px;margin:12px auto;padding:12px 18px;border:1px solid var(--border);background:var(--panel);border-radius:12px;box-shadow:0 8px 26px rgba(15,23,42,0.04);display:flex;justify-content:space-between;align-items:center;gap:16px}
+@media(max-width:720px){.tabbar-container{flex-direction:column;align-items:flex-start}}
 
-.card{background:var(--panel);border:1px solid var(--border);padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,0.06)}
-.card h2{margin:0 0 14px;font-size:16px;color:var(--accent)}
+.tabbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tabbar .btn{position:relative;padding:10px 16px;border:1px solid var(--border);background:linear-gradient(180deg,var(--panel),var(--bg));color:var(--text);font-weight:600;transition:all 0.2s;white-space:nowrap}
+.tabbar .btn.active{background:var(--panel);border-color:var(--primary);color:var(--primary);transform:translateY(-2px);box-shadow:0 6px 18px var(--shadow-strong)}
+.tabbar .btn.active::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid var(--primary)}
+.tab-analyst{color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap}
+
+.container{width:100%;max-width:var(--site-max-width);margin:0 auto;padding:12px 16px 16px;flex:1;overflow:auto;scrollbar-width:none;-ms-overflow-style:none}
+.container::-webkit-scrollbar{display:none}
+
+.card{background:var(--panel);border:1px solid var(--border);padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,0.06);margin:12px 0;transition:background 0.3s,border-color 0.3s}
+.card h2{margin:0 0 12px;font-size:16px;color:var(--accent)}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-row{display:flex;flex-direction:column}
 .form-row label{font-weight:600;font-size:13px;color:var(--muted);margin-bottom:6px}
-.form-row input,.form-row select,.form-row textarea{background:transparent;border:1px solid var(--border);padding:10px;border-radius:8px;font-size:14px;color:var(--accent);transition:border-color 0.2s,box-shadow 0.2s}
+.form-row input,.form-row select,.form-row textarea{background:transparent;border:1px solid var(--border);padding:10px;border-radius:8px;font-size:14px;color:var(--text);transition:border-color .2s,box-shadow .2s}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--shadow)}
 .form-row textarea{resize:vertical}
+.span-2{grid-column:1 / span 2}
+@media(max-width:720px){.form-grid{grid-template-columns:1fr}}
+
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.btn{cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid transparent;background:var(--primary);color:#fff;font-weight:700;transition:background .15s,transform .08s,box-shadow .15s;font-size:14px}
+.btn:hover{background:var(--accent);transform:translateY(-1px);box-shadow:0 6px 16px var(--shadow-strong)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--accent)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none}
+
+#output,#pwOutput{font-family:monospace;background:#f3f4f6;border:1px solid var(--border);padding:10px;border-radius:6px}
+
+.footer{margin:14px 0 28px;padding:8px 16px;text-align:center;color:var(--muted);font-size:13px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;opacity:0;transition:opacity .18s;z-index:9997}
+.toast.show{opacity:1}
+
+/* Modal baseline */
+.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:11000 }
+.modal-backdrop.show{ display:flex }
+.modal{ background:#fff; padding:16px; width:min(820px,96%); border-radius:10px; box-shadow:0 20px 60px rgba(2,6,23,0.12) }
+
+/* Ensure nav stays horizontal on desktop, wraps on small screens */
+/* small-screen behavior handled earlier via media queries on .tabbar-container */
+.tab-analyst{margin-top:0;font-weight:600;color:var(--muted);font-size:13px}
+@media(max-width:700px){ .tabbar{ flex-direction:row; flex-wrap:wrap } }
+
+.header, .tabbar-container, .container{width:100%;max-width:var(--site-max-width);margin-left:auto;margin-right:auto}
+.header{padding:18px 20px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;position:relative}
+.header h1{font-size:18px}
+.tabbar-container{padding:10px 14px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tabbar{gap:10px}
+.tabbar .btn{border-radius:10px;padding:10px 12px;font-size:14px}
+.tabbar .btn.active{transform:translateY(-2px)}
+
+/* Cards: match widths and visual rhythm */
+.card{padding:18px;border-radius:12px;margin:14px 0;box-shadow:0 8px 22px rgba(15,23,42,0.04);max-width:var(--site-max-width);width:100%;box-sizing:border-box;margin-left:auto;margin-right:auto}
+.card h2{font-size:15px;margin-bottom:12px}
+
+/* Ensure all cards occupy same width inside the container */
+.container > .card{width:100%;box-sizing:border-box}
+
+/* Form spacing consistency */
+.form-grid{grid-template-columns:1fr 1fr;gap:14px}
+.form-row label{margin-bottom:6px}
+.form-row input,.form-row select,.form-row textarea{padding:10px}
+.btn-row{margin-top:10px}
+
+/* Footer centered */
+.footer{width:100%;max-width:var(--site-max-width);margin:18px auto 28px;padding:12px 16px;text-align:center;background:var(--panel);border:1px solid var(--border);border-radius:12px;color:var(--muted)}
+
+/* Responsive tightening */
+@media(max-width:880px){
+  .header h1{font-size:16px}
+  .tabbar .btn{font-size:13px;padding:8px 10px}
+  .form-grid{grid-template-columns:1fr}
+}
+
+
+/* Header helpers */
+.header-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.header-controls{display:flex;gap:12px;align-items:center;position:fixed;right:18px;top:12px;z-index:1200}
+.header-label{font-size:13px;color:var(--muted);margin-right:6px}
+
+/* Theme toggle (sun/moon icons) */
+.theme-toggle{display:inline-flex;align-items:center}
+.theme-toggle input{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.theme-label{display:inline-flex;align-items:center;gap:8px;position:relative;width:auto;height:28px;padding:6px;border-radius:8px;background:transparent;border:1px solid transparent;cursor:pointer}
+.theme-label .icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex:0 0 18px;opacity:.9;transition:opacity .18s,transform .18s}
+.theme-label .icon-sun svg, .theme-label .icon-moon svg{display:block;width:18px;height:18px}
+.theme-label .icon-sun{color:#FFD166}
+.theme-label .icon-moon{color:#9AD0F7}
+.theme-label .toggle-knob{display:none}
+.theme-toggle input:checked + .theme-label .icon-sun{opacity:.32;transform:scale(.96)}
+.theme-toggle input:not(:checked) + .theme-label .icon-moon{opacity:.32;transform:scale(.96)}
+
+/* Show only the active icon clearly; label receives .is-dark when dark is active */
+.theme-label .icon-sun{opacity:1;transition:opacity .18s,transform .18s;display:inline-flex}
+.theme-label .icon-moon{opacity:0;transition:opacity .18s,transform .18s;display:inline-flex}
+.theme-label.is-dark .icon-sun{opacity:0}
+.theme-label.is-dark .icon-moon{opacity:1}
+.theme-label.is-dark{border-color:transparent}
+
+/* Slight hover effect to indicate clickable icon */
+.theme-label:hover{filter:brightness(1.02);transform:translateY(-1px)}
+
+
+/* Tab-specific color themes (background tints) */
+body.tab-messages .tabbar-container,body.tab-messages .card,body.tab-messages .header{ background:linear-gradient(180deg,#f7fbf8,#eef7f1); border-color:#c8e6d3; }
+body.tab-messages .tabbar .btn.active{ border-color:#7bcf9a; color:#0d7a3f; }
+
+body.tab-emails .tabbar-container,body.tab-emails .card,body.tab-emails .header{ background:linear-gradient(180deg,#f4f7fc,#e8eef9); border-color:#c7d8f0; }
+body.tab-emails .tabbar .btn.active{ border-color:#7ca6e6; color:#1b4f99; }
+
+body.tab-passwords .tabbar-container,body.tab-passwords .card,body.tab-passwords .header{ background:linear-gradient(180deg,#fdf4f4,#f9eaea); border-color:#f1c7c7; }
+body.tab-passwords .tabbar .btn.active{ border-color:#e38c8c; color:#8c1f1f; }
+
+/* Page background matches tab theme but remains opaque so translucent cards remain visible */
+body.tab-messages{ background: linear-gradient(180deg,#eaf7ef,#dff0e6); }
+body.tab-messages .card{ background: rgba(255,255,255,0.95); border-color:#c8e6d3; box-shadow:0 10px 30px rgba(15,23,42,0.05) }
+
+body.tab-emails{ background: linear-gradient(180deg,#f0f6fb,#e6eef8); }
+body.tab-emails .card{ background: rgba(255,255,255,0.96); border-color:#c7d8f0; box-shadow:0 10px 30px rgba(15,23,42,0.05) }
+
+body.tab-passwords{ background: linear-gradient(180deg,#fff3f4,#fdeeee); }
+body.tab-passwords .card{ background: rgba(255,255,255,0.96); border-color:#f1c7c7; box-shadow:0 10px 30px rgba(15,23,42,0.05) }
+
+/* Dark-mode: keep the same approach but use darker opaque backgrounds and slightly translucent cards */
+.dark.body.tab-messages, .dark body.tab-messages{ background: linear-gradient(180deg,#08221b,#0d2d24); }
+.dark body.tab-messages .card{ background: rgba(20,38,34,0.9); border-color:#123a2e; box-shadow:0 10px 30px rgba(0,0,0,0.45) }
+
+.dark.body.tab-emails, .dark body.tab-emails{ background: linear-gradient(180deg,#041427,#071a2a); }
+.dark body.tab-emails .card{ background: rgba(12,24,36,0.92); border-color:#081a3a; box-shadow:0 10px 30px rgba(0,0,0,0.45) }
+
+.dark.body.tab-passwords, .dark body.tab-passwords{ background: linear-gradient(180deg,#2a0f10,#210b0c); }
+.dark body.tab-passwords .card{ background: rgba(40,18,18,0.9); border-color:#3a1011; box-shadow:0 10px 30px rgba(0,0,0,0.5) }
+
+/* Dark-mode variants for tab themes: use darker tones so cards are visible */
+.dark body.tab-messages .tabbar-container,.dark body.tab-messages .card,.dark body.tab-messages .header{
+  background:linear-gradient(180deg,#0e2a24,#122f28); border-color:#123a2e; color:var(--text);
+}
+.dark body.tab-messages .tabbar .btn.active{ border-color:#2aa07a; color:#9be7c8 }
+
+.dark body.tab-emails .tabbar-container,.dark body.tab-emails .card,.dark body.tab-emails .header{
+  background:linear-gradient(180deg,#071331,#0b1b2c); border-color:#081a3a; color:var(--text);
+}
+.dark body.tab-emails .tabbar .btn.active{ border-color:#3b63a8; color:#bcd6ff }
+
+.dark body.tab-passwords .tabbar-container,.dark body.tab-passwords .card,.dark body.tab-passwords .header{
+  background:linear-gradient(180deg,#2b0f10,#2a1516); border-color:#3a1011; color:var(--text);
+}
+.dark body.tab-passwords .tabbar .btn.active{ border-color:#a24e53; color:#ffd6d6 }
+
+/* Make inputs and textareas readable in dark mode */
+.dark .form-row input,.dark .form-row select,.dark .form-row textarea{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.04);color:var(--text)}
+.dark #output, .dark #pwOutput, .dark #emailBodyOutput{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.04);color:var(--text)}
+
+/* Email form helpers */
 #emailSubject{min-height:50px;line-height:1.4;overflow-y:hidden;resize:vertical;max-height:200px}
 #emailBodyOutput{min-height:200px;resize:vertical;max-height:800px}
 .auto-resize{overflow-y:hidden;resize:vertical}
 textarea.auto-resize{max-height:600px}
-.span-2{grid-column:1 / span 2}
 #newRequirementsRow,#templateFieldsContainer{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
 #newRequirementsRow{display:none}
 #templateFieldsContainer{display:none}
 
-.btn-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
-.btn{cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid transparent;background:var(--primary);color:#fff;font-weight:600;transition:background 0.2s,transform 0.1s,box-shadow 0.2s}
-.btn:hover{background:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px var(--shadow-hover)}
-.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--accent)}
+/* Ensure tab buttons are always visible and inline */
+.tabbar{display:flex !important;flex-wrap:wrap !important;gap:8px;width:100%}
+.tabbar .btn{display:flex !important;align-items:center;justify-content:center;flex:1 1 0;min-width:0;padding:8px 12px}
+.tabbar .btn.ghost{background:transparent}
+.tabbar-container{overflow:visible}
 
-#output,#pwOutput{font-family:monospace;background:#f3f4f6;border:1px solid var(--border);padding:10px;border-radius:6px}
 
-.footer{margin:18px 0 40px;padding:8px 16px;text-align:center;color:var(--muted);font-size:13px}
+/* Compact mode: reduce paddings/margins/heights to avoid page scrolling */
+body.compact{font-size:13px}
+body.compact .header, body.compact .tabbar-container, body.compact .card{padding:8px;border-radius:8px}
+body.compact .header h1{font-size:16px}
+body.compact .card h2{font-size:14px}
+body.compact .form-grid{gap:8px}
+body.compact .form-row label{font-size:12px}
+body.compact .form-row input, body.compact .form-row select, body.compact .form-row textarea{padding:8px;font-size:13px}
+body.compact .btn{padding:8px 10px;font-size:13px}
+body.compact .btn-row{gap:6px}
+body.compact #output, body.compact #emailBodyOutput, body.compact textarea.auto-resize{max-height:140px}
+body.compact .container{padding:8px 12px}
 
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;opacity:0;transition:opacity .18s}
-.toast.show{opacity:1}
-
-/* Modal simple */
-.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:11000 }
-.modal-backdrop.show{ display:flex }
-.modal{ background:#fff; padding:16px; width:min(820px,96%); border-radius:8px; box-shadow:0 20px 60px rgba(2,6,23,0.12) }
-
-@media (max-width:700px){ .form-grid{grid-template-columns:1fr} }
-
-/* Tabs */
-.tabbar{grid-column:1 / -1;display:flex;gap:8px;margin-bottom:12px;align-items:center}
-.tabbar .tab-analyst{margin-left:auto;font-weight:600;color:var(--muted)}
-button[data-tab].active{background:var(--primary);color:#fff;border-color:transparent}
-
-/* header analyst + theme button */
-.header-analyst{font-size:14px;color:var(--muted);margin-right:12px}
-.theme-btn{border:1px solid var(--border);background:transparent;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:16px}
-
-/* make section cards take more space on wide screens */
-section[data-tab]{grid-column:1 / -1}
+/* Force no page scroll: clip overflow and let container try to fit content */
+html,body{overflow:hidden}
+/* container remains scrollable internally only if needed */
+.container{overflow:auto}

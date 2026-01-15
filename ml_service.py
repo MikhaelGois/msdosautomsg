@@ -222,7 +222,7 @@ def generate_email_from_prompt(prompt, subject, templates_list):
 
 # Carregar templates na inicialização
 TEMPLATES = load_templates()
-print(f"✓ Loaded {len(TEMPLATES)} templates from database")
+print(f"Loaded {len(TEMPLATES)} templates from database")
 
 @app.route('/health', methods=['GET'])
 def health():

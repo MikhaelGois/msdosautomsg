@@ -4,8 +4,9 @@ const multer = require('multer');
 const mammoth = require('mammoth');
 const fs = require('fs');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
+const compression = require('compression');
+const expressStaticGzip = require('express-static-gzip');
 
 // Template name translations
 const templateTranslations = {
@@ -29,7 +30,23 @@ const templateTranslations = {
 const app = express();
 const upload = multer({ dest: path.join(__dirname,'uploads') });
 app.use(cors());
-app.use(bodyParser.json({limit:'1mb'}));
+app.use(express.json({limit:'1mb'}));
+
+// enable gzip/brotli compression for dynamic responses
+app.use(compression({ level: 6 }));
+
+// serve pre-compressed assets when available (prefer brotli then gzip)
+app.use('/', expressStaticGzip(path.join(__dirname), {
+  enableBrotli: true,
+  orderPreference: ['br', 'gz'],
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
+}));
+
+// fallback to plain static serving
 app.use(express.static(path.join(__dirname)));
 
 // inicializa ou abre DB
@@ -221,15 +238,15 @@ app.get('/api/template/:id', (req,res)=>{
   db.get('SELECT id,name,text FROM templates WHERE id=?', [id], (err,row)=>{
     if(err) return res.status(500).json({error:err.message});
     if(!row) return res.status(404).json({error:'not found'});
-    // detect placeholders: lines with pattern "FieldName: [Value]" or "• FieldName: [Value]"
+    // detect placeholders: any field with format "FieldName: " anywhere in text
     const text = row.text || '';
     const placeholders = [];
-    const lines = text.split(/\r?\n/);
-    for(const line of lines){
-      // match bullet or indent followed by "Word Word: [...]"
-      const m = line.match(/[•\-]?\s*([A-Za-z][A-Za-z0-9\s]+):\s*\[([^\]]+)\]/i);
-      if(m){
-        const field = m[1].trim().replace(/\s+/g,'_');
+    // Match "FieldName:" where FieldName starts with letter and contains alphanumeric/spaces/underscores
+    const regex = /\b([A-Za-z][A-Za-z0-9_\s]*?):\s/g;
+    let match;
+    while((match = regex.exec(text)) !== null){
+      const field = match[1].trim().replace(/\s+/g,'_');
+      if(field && !placeholders.includes(field)){
         placeholders.push(field);
       }
     }
@@ -249,6 +266,60 @@ app.post('/api/generate-email', (req,res)=>{
       out = out.replace(re, fields[k] || '');
     }
     res.json({text: out});
+  });
+});
+
+// generate-from-template: more robust replacement using lines with ':' and [placeholders]
+app.post('/api/generate-from-template', (req, res) => {
+  const { templateId, fields } = req.body || {};
+  if(!templateId) return res.status(400).json({ error: 'templateId required' });
+  db.get('SELECT text,name FROM templates WHERE id=?', [templateId], (err,row)=>{
+    if(err) return res.status(500).json({ error: err.message });
+    if(!row) return res.status(404).json({ error: 'template not found' });
+    const text = row.text || '';
+    const inFields = {};
+    // normalize provided field keys: allow both 'Email Address' and 'email_address'
+    for(const k of Object.keys(fields || {})){
+      const nk = String(k).trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+      inFields[nk] = fields[k];
+    }
+
+    function normalizeKey(s){ return String(s||'').trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
+
+    const outLines = [];
+    for(const ln of String(text).split(/\r?\n/)){
+      if(ln.indexOf(':') === -1){
+        // replace bracketed placeholders inside line
+        let s = ln;
+        const brs = s.match(/\[([^\]]+)\]/g) || [];
+        for(const b of brs){
+          const key = normalizeKey(b.replace(/\[|\]/g,''));
+          const v = inFields[key] || '';
+          s = s.replace(b, v);
+        }
+        outLines.push(s);
+        continue;
+      }
+      const idx = ln.indexOf(':');
+      const leftRaw = ln.slice(0, idx);
+      const left = leftRaw.replace(/^\s*[-•\*\u2022\t\s]+/, '').trim();
+      const key = normalizeKey(left);
+      const right = ln.slice(idx+1);
+      let val = '';
+      if(inFields.hasOwnProperty(key)) val = inFields[key];
+      else {
+        // try bracket placeholder in right
+        const m = right.match(/\[([^\]]+)\]/);
+        if(m){ val = inFields[normalizeKey(m[1])] || ''; }
+      }
+      // preserve leading bullets/whitespace
+      const lead = leftRaw.match(/^\s*[-•\*\u2022\t\s]*/);
+      const prefix = lead ? lead[0] : '';
+      outLines.push(prefix + left + ': ' + (val || '').toString());
+    }
+
+    const generated = outLines.join('\n');
+    res.json({ id: row.id, name: row.name, text: generated });
   });
 });
 
@@ -282,5 +353,51 @@ app.get('/api/passwords', (req,res)=>{
 
 // simple admin page served statically: ensure admin.html exists in folder
 
+const http = require('http');
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=>{ console.log('Server listening on', PORT); });
+
+// create HTTP server so we can later close it gracefully
+const server = http.createServer(app);
+let activeClients = 0;
+
+server.listen(PORT, ()=>{ console.log('Server listening on', PORT); });
+
+// Simple SSE endpoint for clients to announce presence; when the last client disconnects, shutdown
+app.get('/_sse', (req, res) => {
+  // keep the connection open
+  req.socket.setTimeout(0);
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive'
+  });
+  // send initial keep-alive
+  res.write('retry: 10000\n\n');
+  activeClients++;
+  console.log('SSE client connected, count=', activeClients);
+  res.write(`data: ${JSON.stringify({ connected: true, clients: activeClients })}\n\n`);
+
+  req.on('close', () => {
+    activeClients = Math.max(0, activeClients - 1);
+    console.log('SSE client disconnected, count=', activeClients);
+    // if no clients remain, close the server after a short delay
+    if (activeClients === 0) {
+      // allow disabling auto-shutdown via environment for testing
+      if (process.env.AUTO_SHUTDOWN === 'false') {
+        console.log('AUTO_SHUTDOWN is false — keeping server running for tests');
+        return;
+      }
+      console.log('No active clients remain — shutting down server in 1s');
+      setTimeout(() => {
+        try{
+          server.close(() => {
+            console.log('Server closed due to no active clients');
+            process.exit(0);
+          });
+        }catch(e){ console.error('Error during server close', e); }
+      }, 1000);
+    }
+  });
+});
+
+app.get('/_clients', (req, res) => { res.json({ clients: activeClients }); });

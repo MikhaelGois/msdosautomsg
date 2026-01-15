@@ -166,3 +166,80 @@ body{
 @keyframes binaryAssemble{ 0%{ transform:scale(.98) blur(3px); filter:brightness(.6); opacity:0.7 } 40%{ transform:scale(1.02) blur(0); filter:brightness(1.4); opacity:1 } 100%{ transform:none; filter:none; opacity:1 } }
 
 @media (max-width:700px){ .binary-char{ opacity:0.95; } }
+
+/* --- Static layout integration (user provided) --- */
+.wrapper {
+  width: 960px;
+  margin: 0 auto;
+}
+
+header {
+  width: 960px;
+}
+
+nav, section {
+  float: left;
+}
+
+nav {
+  width: 200px;
+  margin-right: 10px;
+}
+
+section {
+  width: 750px;
+}
+
+header,
+nav,
+section {
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 10px;
+  border-radius: 3px;
+}
+
+header {
+  padding: 12px 10px;
+}
+
+nav, section {
+  padding: 12px;
+}
+
+.wrapper::after{
+  content: '';
+  display: block;
+  clear: both;
+}
+
+@media (max-width:1000px){
+  .wrapper, header { width: auto; padding: 0 12px }
+  nav, section{ float:none; width:auto; margin-right:0 }
+}
+
+/* Tab-specific color themes */
+.wrapper.tab-messages header, .wrapper.tab-messages section { background: linear-gradient(180deg,#012a12,#02451c); }
+.wrapper.tab-messages nav { background: linear-gradient(180deg,#023818,#012d13); }
+
+.wrapper.tab-emails header, .wrapper.tab-emails section { background: linear-gradient(180deg,#08234a,#0c386f); }
+.wrapper.tab-emails nav { background: linear-gradient(180deg,#0a2e60,#062143); }
+
+.wrapper.tab-passwords header, .wrapper.tab-passwords section { background: linear-gradient(180deg,#4d0c0c,#680f0f); }
+.wrapper.tab-passwords nav { background: linear-gradient(180deg,#5a0d0d,#3a0707); }
+
+/* Fichário / tab separator effect */
+.tabbar{ display:flex; flex-direction:column; gap:8px; padding:8px }
+.tabbar .btn{ position:relative; text-align:left }
+.tabbar .btn.active{ background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-color:rgba(255,255,255,0.18); transform:translateX(4px); box-shadow: -8px 10px 30px rgba(0,0,0,0.35); }
+.tabbar .btn.active::after{
+  content:''; position:absolute; right:-12px; top:8px; width:12px; height:calc(100% - 16px); background:linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0.12)); border-radius:0 6px 6px 0; box-shadow: -6px 0 12px rgba(0,0,0,0.12);
+}
+
+/* small visual separator between nav and content */
+.wrapper nav{ padding-right:12px; }
+.wrapper nav::after{ content:''; display:block; position:relative; margin-top:8px; height:100%; }
+
+@media (max-width:700px){
+  .tabbar{ flex-direction:row; gap:6px }
+  .tabbar .btn.active::after{ display:none }
+}

@@ -5,208 +5,272 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>Message & Password Utility</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Luxottica IT Utilitary</title>
+  <link rel="stylesheet" href="dist/styles.css?v=8" />
   <!-- Removed login redirect: app is now accessible without auth -->
 </head>
 <body>
   <header class="header">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <div class="header-row">
       <div>
-        <h1>Message & Password Utility</h1>
+        <h1>Luxottica IT Utilitary</h1>
         <div class="prompt">Automatic message, password and e-mail generator</div>
       </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="header-analyst">Signed in as: <span class="analyst-name" style="font-weight:700"></span></div>
-        <button id="themeToggleBtn" aria-label="Toggle theme" title="Toggle theme" class="theme-btn">🌙</button>
+      <div class="header-controls">
+        <div class="theme-toggle">
+          <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode" />
+          <label for="themeToggle" class="theme-label" title="Alternar tema">
+            <span class="icon icon-sun" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="#FFD166"/><g stroke="#FFD166" stroke-width="1.2" stroke-linecap="round"><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></g></svg></span>
+            <span class="icon icon-moon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="#9AD0F7"/></svg></span>
+            <span class="toggle-knob" aria-hidden="true"></span>
+          </label>
+        </div>
       </div>
     </div>
   </header>
 
+  <!-- Horizontal tab navigation -->
+  <nav class="tabbar-container">
+    <div class="tabbar" role="tablist" aria-label="Main tools">
+      <button id="tab-messages" class="btn ghost" data-tab="messages" role="tab" aria-controls="messageCard">📝 Mensagens</button>
+      <button id="tab-emails" class="btn ghost" data-tab="emails" role="tab" aria-controls="emailCard">📧 Gerador de E-mails</button>
+      <button id="tab-passwords" class="btn ghost" data-tab="passwords" role="tab" aria-controls="passwordCard">🔐 Gerador de Senhas</button>
+    </div>
+    <div class="tab-analyst">Signed in as: <span class="analyst-name">Mikhael</span></div>
+  </nav>
+
   <main class="container">
-    <nav class="tabbar" style="display:flex;gap:8px;margin-bottom:8px">
-      <button class="btn ghost" data-tab="messages">Messages</button>
-      <button class="btn ghost" data-tab="emails">Emails</button>
-      <button class="btn ghost" data-tab="passwords">Passwords</button>
-      <a class="btn ghost" href="/labeler.html" style="display:none">Labeler</a>
-      <a class="btn ghost" href="/admin.html" style="display:none">Admin</a>
-    </nav>
-    <!-- ====== Mensagens de Ticket ====== -->
-    <section class="card" id="messageCard" data-tab="messages">
-      <h2>Mensagens de Ticket</h2>
+      <!-- ====== Mensagens de Ticket ====== -->
+      <section class="card" id="messageCard" data-tab="messages">
+        <h2>Mensagens de Ticket</h2>
 
-      <form id="messageForm" class="form-grid" autocomplete="off">
-        <div class="form-row">
-          <label for="channelSelect">Canal</label>
-          <select id="channelSelect">
-            <option value="teams">Microsoft Teams</option>
-            <option value="requestia">Requestia (encerramento)</option>
-          </select>
+        <form id="messageForm" class="form-grid" autocomplete="off">
+          <div class="form-row">
+            <label for="channelSelect">Canal</label>
+            <select id="channelSelect">
+              <option value="teams">Microsoft Teams</option>
+              <option value="requestia">Requestia (encerramento)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="messageType">Tipo de mensagem</label>
+            <select id="messageType">
+              <option value="progress">Atendimento / Em andamento</option>
+              <option value="closure">Encerramento</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="categorySelect">Categoria</label>
+            <select id="categorySelect"></select>
+          </div>
+
+          <div class="form-row" id="subcategoryRow">
+            <label for="subcategorySelect">Subcategoria</label>
+            <select id="subcategorySelect"></select>
+          </div>
+
+          <div class="form-row">
+            <label for="ticketId">Ticket</label>
+            <input id="ticketId" type="text" placeholder="#12345" />
+          </div>
+
+          <div class="form-row">
+            <label for="requesterName">Nome do usuário</label>
+            <input id="requesterName" type="text" placeholder="Nome do usuário" />
+          </div>
+
+          <div class="form-row">
+            <label for="username">Usuário (login)</label>
+            <input id="username" type="text" placeholder="ex.: jdoe" />
+          </div>
+
+          <div class="btn-row span-2">
+            <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
+            <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
+            <button type="reset" id="clearMsgBtn" class="btn ghost">Limpar</button>
+          </div>
+
+          <div class="form-row span-2">
+            <label for="output">Mensagem gerada</label>
+            <textarea id="output" rows="6" readonly></textarea>
+          </div>
+        </form>
+      </section>
+
+      <!-- ====== Gerador de E-mails (templates) ====== -->
+      <section class="card" id="emailCard" data-tab="emails">
+        <h2>Gerador de E-mails (templates)</h2>
+        <div class="form-grid">
+          <div class="form-row span-2">
+            <label for="templateSelect">Modelo</label>
+            <select id="templateSelect"></select>
+          </div>
+          <div class="form-row">
+            <label for="languageSelect">Idioma</label>
+            <select id="languageSelect">
+              <option value="pt">Português (PT)</option>
+              <option value="en">English (EN)</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-row">
-          <label for="messageType">Tipo de mensagem</label>
-          <select id="messageType">
-            <option value="progress">Atendimento / Em andamento</option>
-            <option value="closure">Encerramento</option>
-          </select>
+        <div class="form-grid">
+          <div class="form-row span-2">
+            <label for="emailSubject">Assunto</label>
+            <textarea id="emailSubject" rows="1" placeholder="Assunto do e-mail" class="auto-resize"></textarea>
+          </div>
         </div>
 
-        <div class="form-row">
-          <label for="categorySelect">Categoria</label>
-          <select id="categorySelect"></select>
+        <div id="newRequirementsRow" class="form-grid">
+          <div class="form-row span-2">
+            <label for="newRequirements">Descreva o que precisa (novo modelo)</label>
+            <textarea id="newRequirements" rows="2" placeholder="Descreva o objetivo, tom e público do e-mail" class="auto-resize"></textarea>
+          </div>
         </div>
 
-        <div class="form-row" id="subcategoryRow">
-          <label for="subcategorySelect">Subcategoria</label>
-          <select id="subcategorySelect"></select>
+        <div id="templateFieldsContainer" class="form-grid" style="display: block;">
+          <div id="templateFields" class="span-2"></div>
         </div>
 
-        <div class="form-row">
-          <label for="ticketId">Ticket</label>
-          <input id="ticketId" type="text" placeholder="#12345" />
+        <div class="form-grid">
+          <div class="btn-row span-2">
+            <button type="button" id="generateEmailBtn" class="btn">Gerar E-mail</button>
+            <button type="button" id="copyEmailBtn" class="btn ghost">Copiar</button>
+            <button type="button" id="clearEmailBtn" class="btn ghost">Limpar</button>
+            <button type="button" id="saveTemplateBtn" class="btn ghost">Salvar modelo</button>
+          </div>
         </div>
 
-        <div class="form-row">
-          <label for="requesterName">Nome do usuário</label>
-          <input id="requesterName" type="text" placeholder="Nome do usuário" />
+        <div class="form-grid">
+          <div class="form-row span-2">
+            <label for="emailBodyOutput">Corpo do e-mail gerado</label>
+            <textarea id="emailBodyOutput" rows="8" class="auto-resize"></textarea>
+          </div>
         </div>
+      </section>
 
-        <div class="form-row">
-          <label for="username">Usuário (login)</label>
-          <input id="username" type="text" placeholder="ex.: jdoe" />
-        </div>
+      <!-- ====== Gerador de Senhas ====== -->
+      <section class="card" id="passwordCard" data-tab="passwords">
+        <h2>Gerador de Senhas (política)</h2>
 
-        <!-- campo 'Atendente' e 'Data/Hora' removidos; o solicitante verá o responsável automaticamente -->
+        <form id="passwordForm" class="form-grid" autocomplete="off">
+          <div class="form-row">
+            <label for="pwName">Nome do usuário</label>
+            <input id="pwName" type="text" placeholder="Nome completo" />
+          </div>
 
-        <!-- Botões: PT, EN, PT/EN -->
-        <div class="btn-row span-2">
-          <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
+          <div class="form-row">
+            <label for="pwUsername">Login</label>
+            <input id="pwUsername" type="text" placeholder="login/usuário" />
+          </div>
 
-          <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
-          <!-- Save removed: DB disabled -->
-          <button type="reset" id="clearMsgBtn" class="btn ghost">Limpar</button>
-        </div>
+          <div class="form-row">
+            <label for="pwLength">Comprimento</label>
+            <input id="pwLength" type="number" min="12" value="12" />
+          </div>
 
-        <div class="form-row span-2">
-          <label for="output">Mensagem gerada</label>
-          <textarea id="output" rows="12" readonly></textarea>
-        </div>
-      </form>
-    </section>
+          <div class="form-row">
+            <label class="checkbox">
+              <input type="checkbox" id="pwSymbols" checked />
+              <span>Incluir símbolos (!@#$%)</span>
+            </label>
+          </div>
 
-    <!-- ====== Gerador de E-mails (templates) ====== -->
-    <section class="card" id="emailCard" data-tab="emails">
-      <h2>Gerador de E-mails (templates)</h2>
-      <div class="form-grid">
-        <!-- template selection -->
-        <div class="form-row span-2">
-          <label for="templateSelect">Modelo</label>
-          <select id="templateSelect"></select>
-        </div>
-      </div>
+          <div class="btn-row">
+            <button type="button" id="generatePwBtn" class="btn">Gerar senha</button>
+            <button type="button" id="copyPwBtn" class="btn">Copiar</button>
+            <button type="reset" id="clearPwBtn" class="btn ghost">Limpar</button>
+          </div>
 
-      <!-- Subject field - always visible -->
-      <div class="form-grid">
-        <div class="form-row span-2">
-          <label for="emailSubject">Assunto</label>
-          <textarea id="emailSubject" rows="2" placeholder="Assunto do e-mail" class="auto-resize"></textarea>
-        </div>
-      </div>
+          <div class="form-row span-2">
+            <label for="pwOutput">Senha gerada</label>
+            <input id="pwOutput" type="text" readonly />
+          </div>
 
-      <!-- New template section - only visible when 'Novo' is selected -->
-      <div id="newRequirementsRow" class="form-grid">
-        <div class="form-row span-2">
-          <label for="newRequirements">Descreva o que precisa (novo modelo)</label>
-          <textarea id="newRequirements" rows="4" placeholder="Descreva o objetivo, tom e público do e-mail" class="auto-resize"></textarea>
-        </div>
-      </div>
-
-      <!-- Dynamic form fields for selected template -->
-      <div id="templateFieldsContainer" class="form-grid">
-        <div id="templateFields" class="span-2"></div>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="form-grid">
-        <div class="btn-row span-2">
-          <button type="button" id="generateEmailBtn" class="btn">Gerar E-mail</button>
-          <button type="button" id="copyEmailBtn" class="btn ghost">Copiar</button>
-          <button type="button" id="clearEmailBtn" class="btn ghost">Limpar</button>
-          <button type="button" id="saveTemplateBtn" class="btn ghost">Salvar modelo</button>
-        </div>
-      </div>
-
-      <!-- Email body output -->
-      <div class="form-grid">
-        <div class="form-row span-2">
-          <label for="emailBodyOutput">Corpo do e-mail gerado</label>
-          <textarea id="emailBodyOutput" rows="12" class="auto-resize"></textarea>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====== Gerador de Senhas ====== -->
-    <section class="card" id="passwordCard" data-tab="passwords">
-      <h2>Gerador de Senhas (política)</h2>
-
-      <form id="passwordForm" class="form-grid" autocomplete="off">
-        <div class="form-row">
-          <label for="pwName">Nome do usuário</label>
-          <input id="pwName" type="text" placeholder="Nome completo" />
-        </div>
-
-        <div class="form-row">
-          <label for="pwUsername">Login</label>
-          <input id="pwUsername" type="text" placeholder="login/usuário" />
-        </div>
-
-        <div class="form-row">
-          <label for="pwLength">Comprimento</label>
-          <input id="pwLength" type="number" min="12" value="12" />
-        </div>
-
-        <div class="form-row">
-          <label class="checkbox">
-            <input type="checkbox" id="pwSymbols" checked />
-            <span>Incluir símbolos (!@#$%)</span>
-          </label>
-        </div>
-
-        <div class="btn-row">
-          <button type="button" id="generatePwBtn" class="btn">Gerar senha</button>
-          <button type="button" id="copyPwBtn" class="btn">Copiar</button>
-          <button type="reset" id="clearPwBtn" class="btn ghost">Limpar</button>
-        </div>
-
-        <div class="form-row span-2">
-          <label for="pwOutput">Senha gerada</label>
-          <input id="pwOutput" type="text" readonly />
-        </div>
-
-        <div class="span-2">
-          <p><strong>Política:</strong></p>
-          <ul>
-            <li>Diferencia maiúsculas de minúsculas</li>
-            <li>Mínimo de 12 caracteres</li>
-            <li>Inclui ao menos 1 número</li>
-            <li>Inclui ao menos 1 letra minúscula</li>
-            <li>Inclui ao menos 1 letra maiúscula</li>
-            <li>Não contém parte do nome/login</li>
-            <li>Não contém palavra/seq. comum</li>
-          </ul>
-        </div>
-      </form>
-    </section>
+          <div class="span-2">
+            <p><strong>Política:</strong></p>
+            <ul>
+              <li>Diferencia maiúsculas de minúsculas</li>
+              <li>Mínimo de 12 caracteres</li>
+              <li>Inclui ao menos 1 número</li>
+              <li>Inclui ao menos 1 letra minúscula</li>
+              <li>Inclui ao menos 1 letra maiúscula</li>
+              <li>Não contém parte do nome/login</li>
+              <li>Não contém palavra/seq. comum</li>
+            </ul>
+          </div>
+        </form>
+      </section>
   </main>
 
   <footer class="footer">
-    <small>&copy; 2026 — Message & Password Utility.</small>
+    <small>&copy; 2026 — Luxottica IT Utilitary.</small>
   </footer>
 
   
-  <script src="app.js"></script>
-  <script src="email_generator.js"></script>
+  <script src="dist/app.js?v=8"></script>
+  <script>
+    // ===== Email Generator (inline) =====
+    const templates = [
+      {id:"extend-expired",name:"Request to Extend Expired Account Access (Solicitação de Extensão de Acesso de Conta Expirada)",subject:"Request to Extend Expired Account Access",body:`Dear Team,\nPlease extend the account access for the user below. The account has already expired:\n• Email Address: mutavel\n• Employee ID or External Reference: mutavel\n• Expiration Date: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Employee ID or External Reference","Expiration Date","Ticket BR"]},
+      {id:"mfa-reset",name:"Request for MFA Reset (Solicitação de Reset de MFA)",subject:"Request for MFA Reset",body:`Dear Team,\nPlease reset the Multi-Factor Authentication (MFA) for the following user:\nName: mutavel\nUsername: mutavel\nEmail: mutavel\nThe user is unable to complete the login process due to MFA issues. Let me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Name","Username","Email"]},
+      {id:"third-party-lux-create",name:"Request for Third-Party Luxottica Account (Solicitação de Conta Luxottica de Terceiros)",subject:"Request for Third-Party Luxottica Account",body:`Dear Team,\nPlease create a new Luxottica account for the third-party user below:\n• Full Name: mutavel\n• SMTP: mutavel\n• Mail Group: mutavel\n• Logon Script: mutavel\n• License: mutavel\n• External Reference or Employee ID: mutavel\n• Copy Settings From: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Full Name","SMTP","Mail Group","Logon Script","License","External Reference or Employee ID","Copy Settings From","Ticket BR"]},
+      {id:"new-lux-create",name:"Request for New Luxottica Account (Solicitação de Nova Conta Luxottica)",subject:"Request for New Luxottica Account",body:`Dear Team,\nPlease create a new Luxottica account for the user below:\n• Full Name: mutavel\n• SMTP: mutavel\n• Mail Group: mutavel\n• Logon Script: mutavel\n• License: mutavel\n• Employee ID: mutavel\n• Copy Settings From: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Full Name","SMTP","Mail Group","Logon Script","License","Employee ID","Copy Settings From","Ticket BR"]},
+      {id:"add-to-dl",name:"Request to Add Email to Distribution Group(s) (Solicitação para Adicionar E-mail ao(s) Grupo(s) de Distribuição)",subject:"Request to Add Email to Distribution Group(s)",body:`Dear Team,\nPlease add the email address below to the specified group(s):\n• Email Address: mutavel\n• Group(s): mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Group(s)","Ticket BR"]},
+      {id:"remove-from-dl",name:"Request to Remove Email from Distribution Group(s) (Solicitação para Remover E-mail do(s) Grupo(s) de Distribuição)",subject:"Request to Remove Email from Distribution Group(s)",body:`Dear Team,\nPlease remove the email address below from the specified group(s):\n• Email Address: mutavel\n• Group(s): mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Group(s)","Ticket BR"]},
+      {id:"delete-email",name:"Request to Delete Email Account (Solicitação de Exclusão de Conta de E-mail)",subject:"Request to Delete Email Account",body:`Dear Team,\nPlease delete the email account below:\n• Email Address: mutavel\n• Employee ID or External Reference: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Employee ID or External Reference","Ticket BR"]},
+      {id:"modify-lux",name:"Request to Modify Existing Luxottica Account (Solicitação de Modificação de Conta Luxottica Existente)",subject:"Request to Modify Existing Luxottica Account",body:`Dear Team,\nPlease update the Luxottica account with the details below:\n• Email Address: mutavel\n• Changes Required: mutavel\n• Employee ID or External Reference: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Changes Required","Employee ID or External Reference","Ticket BR"]},
+      {id:"mirror-lux",name:"Request to Modify Account by Mirroring Existing User (Solicitação de Modificação de Conta Espelhando Usuário Existente)",subject:"Request to Modify Account by Mirroring Existing User",body:`Dear Team,\nPlease update the Luxottica account below to mirror the settings of another user:\n• Email Address to Modify: mutavel\n• Mirror Settings From: mutavel\n• Employee ID or External Reference: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address to Modify","Mirror Settings From","Employee ID or External Reference","Ticket BR"]},
+      {id:"reactivate-email",name:"Request to Reactivate Email Account (Solicitação de Reativação de Conta de E-mail)",subject:"Request to Reactivate Email Account",body:`Dear Team,\nPlease reactivate the email account below:\n• Email Address: mutavel\n• Employee ID or External Reference: mutavel\n• Reason for Reactivation: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Employee ID or External Reference","Reason for Reactivation","Ticket BR"]},
+      {id:"3rd-party-not-receiving",name:"User Not Receiving Third-Party Emails (Usuário Não Recebendo E-mails de Terceiros)",subject:"User Not Receiving Third-Party Emails",body:`Dear Team,\nPlease check and resolve the issue below:\n• Email Address: mutavel\n• Description of Issue: mutavel\n• Steps Already Taken: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Description of Issue","Steps Already Taken","Ticket BR"]},
+      {id:"upgrade-license",name:"Request to Upgrade Office License from E1 to E3 (Solicitação de Upgrade de Licença Office de E1 para E3)",subject:"Request to Upgrade Office License from E1 to E3",body:`Dear Team,\nPlease upgrade the Office license for the user below:\n• Email Address: mutavel\n• Current License: mutavel\n• New License: mutavel\n• Employee ID or External Reference: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Current License","New License","Employee ID or External Reference","Ticket BR"]},
+      {id:"renew-e3",name:"Request to Renew Expired Office License (E3) (Solicitação de Renovação de Licença Office Expirada (E3))",subject:"Request to Renew Expired Office License (E3)",body:`Dear Team,\nThe Office license for the user below has expired. Please proceed with the renewal or reactivation:\n• Email Address: mutavel\n• Previous License: mutavel\n• Status: Expired\n• Employee ID or External Reference: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Previous License","Employee ID or External Reference","Ticket BR"]},
+      {id:"unlock-account",name:"Request to Unlock User Account (Solicitação de Desbloqueio de Conta de Usuário)",subject:"Request to Unlock User Account",body:`Dear Team,\nPlease unlock the account for the user below:\n• Email Address: mutavel\n• Employee ID or External Reference: mutavel\n• Domain Group: mutavel\n• Reason for Unlock: mutavel\n• Ticket BR: mutavel\nLet me know if you need any additional details to process this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Employee ID or External Reference","Domain Group","Reason for Unlock","Ticket BR"]},
+      {id:"block-deactivate",name:"Request to Block and Deactivate User Access (Solicitação de Bloqueio e Desativação de Acesso de Usuário)",subject:"Request to Block and Deactivate User Access",body:`Dear Team,\nPlease proceed with blocking and deactivating all access for the user below:\n• Email Address: mutavel\n• Employee ID or External Reference: mutavel\n• Domain Group(s): mutavel\n• Reason: mutavel\n• Ticket BR: mutavel\nEnsure that all related accounts, permissions, and access to corporate resources are disabled.\nLet me know if you need any additional details to complete this request.\nThank you for your assistance.`,fieldLabels:["Email Address","Employee ID or External Reference","Domain Group(s)","Reason","Ticket BR"]}
+    ];
+    let state={currentTemplate:null,values:[]};
+    const $=(sel)=>document.querySelector(sel);
+    function getTemplateById(id){return templates.find(t=>t.id===id);}
+    function countPlaceholders(subject,body){const rx=/mutavel/g;const inSubj=(subject.match(rx)||[]).length;const inBody=(body.match(rx)||[]).length;return[inSubj,inBody,inSubj+inBody];}
+    function replaceNth(text,token,replacements){let i=0;return text.replace(new RegExp(token,"g"),()=>(replacements[i++]??token));}
+    function loadTemplates(){const el=$("#templateSelect");if(!el)return;el.innerHTML="";templates.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.name;el.appendChild(opt);});setTemplate(templates[0].id);}
+    function renderFields(){const el=$("#templateFields");const container=$("#templateFieldsContainer");if(!el||!container)return;const t=state.currentTemplate;const[subjCount,bodyCount,total]=countPlaceholders(t.subject,t.body);if(!Array.isArray(state.values)||state.values.length!==total)state.values=Array(total).fill("");el.innerHTML="";container.style.display="block";const labels=t.fieldLabels&&t.fieldLabels.length===total?t.fieldLabels:Array.from({length:total},(_,i)=>`Campo ${i+1}`);labels.forEach((label,idx)=>{const wrap=document.createElement("div");wrap.className="form-row";const lab=document.createElement("label");lab.textContent=label;lab.setAttribute("for",`f_${idx}`);const inp=document.createElement("input");inp.id=`f_${idx}`;inp.placeholder=label;inp.value=state.values[idx]||"";inp.addEventListener("input",e=>{state.values[idx]=e.target.value;updatePreview();});wrap.appendChild(lab);wrap.appendChild(inp);el.appendChild(wrap);});updatePreview();console.log(`Rendered ${labels.length} fields for template: ${t.name}`);}
+    function updatePreview(){const elSubj=$("#emailSubject");const elBody=$("#emailBodyOutput");if(!elSubj||!elBody)return;const t=state.currentTemplate;const[subjCount,bodyCount]=countPlaceholders(t.subject,t.body);const subjVals=state.values.slice(0,subjCount);const bodyVals=state.values.slice(subjCount,subjCount+bodyCount);const finalSubj=replaceNth(t.subject,"mutavel",subjVals);const finalBody=replaceNth(t.body,"mutavel",bodyVals);elSubj.value=finalSubj;elBody.value=finalBody;console.log(`Updated preview: ${finalBody.substring(0,50)}...`);}
+    function setTemplate(id){const t=getTemplateById(id);state.currentTemplate=structuredClone(t);const[,,total]=countPlaceholders(t.subject,t.body);state.values=Array(total).fill("");renderFields();}
+    document.addEventListener("DOMContentLoaded",()=>{const elTpl=$("#templateSelect");const btnCopy=$("#copyEmailBtn");const btnReset=$("#clearEmailBtn");loadTemplates();elTpl?.addEventListener("change",(e)=>{setTemplate(e.target.value);});btnCopy?.addEventListener("click",async()=>{const subj=$("#emailSubject")?.value?.trim();const body=$("#emailBodyOutput")?.value?.trim();if(!subj)return alert("Preencha o assunto primeiro");if(!body)return alert("Preencha os campos primeiro");const content=`Subject: ${subj}\n\n${body}`;try{await navigator.clipboard.writeText(content);const old=btnCopy.textContent;btnCopy.textContent="Copiado ✔";setTimeout(()=>btnCopy.textContent=old,1200);}catch(e){alert("Copie manualmente:\n\n"+content);}});btnReset?.addEventListener("click",(e)=>{e.preventDefault();state.values=state.values.map(()=>"");$("#templateFields")?.querySelectorAll("input").forEach((inp)=>inp.value="");const elSubj=$("#emailSubject");const elBody=$("#emailBodyOutput");if(elSubj)elSubj.value="";if(elBody)elBody.value="";updatePreview();});});
+    document.addEventListener("DOMContentLoaded",()=>{const elTpl=$("#templateSelect");const btnCopy=$("#copyEmailBtn");const btnReset=$("#clearEmailBtn");const btnSave=$("#saveTemplateBtn");loadTemplates();elTpl?.addEventListener("change",(e)=>{setTemplate(e.target.value);});btnCopy?.addEventListener("click",async()=>{const subj=$("#emailSubject")?.value?.trim();const body=$("#emailBodyOutput")?.value?.trim();if(!subj)return alert("Preencha o assunto primeiro");if(!body)return alert("Preencha os campos primeiro");const content=`Subject: ${subj}\n\n${body}`;try{await navigator.clipboard.writeText(content);const old=btnCopy.textContent;btnCopy.textContent="Copiado ✔";setTimeout(()=>btnCopy.textContent=old,1200);}catch(e){alert("Copie manualmente:\n\n"+content);}});btnReset?.addEventListener("click",(e)=>{e.preventDefault();state.values=state.values.map(()=>"");$("#templateFields")?.querySelectorAll("input").forEach((inp)=>inp.value="");const elSubj=$("#emailSubject");const elBody=$("#emailBodyOutput");if(elSubj)elSubj.value="";if(elBody)elBody.value="";updatePreview();});
+
+      // Save current generated email as template on server
+      btnSave?.addEventListener('click', async ()=>{
+        try{
+          const subj = (document.querySelector('#emailSubject')?.value || '').trim();
+          const body = (document.querySelector('#emailBodyOutput')?.value || '').trim();
+          if(!subj && !body) return alert('Nada para salvar — gere o e-mail antes.');
+          const defaultName = state.currentTemplate?.name || 'Modelo Personalizado';
+          const name = prompt('Nome do modelo a salvar:', defaultName + ' - ' + new Date().toISOString().slice(0,19).replace('T',' '));
+          if(!name) return;
+          const payload = { name: name, text: 'Subject: ' + subj + '\n\n' + body };
+          const res = await fetch('/api/save-template', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          const j = await res.json().catch(()=>({}));
+          if(!res.ok) return alert('Erro ao salvar: ' + (j.error || res.statusText));
+          alert('Modelo salvo com sucesso. ID: ' + (j.id || 'desconhecido'));
+        }catch(err){ alert('Erro ao salvar: ' + err.message); }
+      });
+    });
+  </script>
+  <script>
+    (function(){
+      if(typeof EventSource === 'undefined') return;
+      try{
+        const es = new EventSource('/_sse');
+        es.onopen = ()=>{ console.log('SSE: connected'); };
+        es.onmessage = (e)=>{ /* optional: handle server messages */ };
+        es.onerror = ()=>{ console.log('SSE: error/closed'); };
+        window.addEventListener('beforeunload', ()=>{ try{ es.close(); }catch(e){} });
+      }catch(e){ console.warn('SSE init failed', e); }
+    })();
+  </script>
 </body>
 </html>
-``

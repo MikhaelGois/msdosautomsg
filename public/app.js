@@ -430,6 +430,31 @@ class BinaryRain {
   }
 }
 
+  // ===== Tab switching (nav) =====
+  function initTabs(){
+    const wrapper = document.querySelector('.wrapper');
+    const tabButtons = Array.from(document.querySelectorAll('.tabbar [data-tab]'));
+    const sections = Array.from(document.querySelectorAll('[data-tab]'));
+
+    function setActive(tab){
+      tabButtons.forEach(b=> b.classList.toggle('active', b.getAttribute('data-tab')===tab));
+      // set wrapper class
+      wrapper.classList.remove('tab-messages','tab-passwords','tab-emails');
+      if(tab) wrapper.classList.add('tab-'+tab);
+      // show/hide sections
+      const match = sections.filter(s=>s.getAttribute('data-tab')===tab);
+      if(match.length){ sections.forEach(s=>{ s.style.display = match.includes(s) ? '' : 'none'; }); }
+      try{ localStorage.setItem('activeTab', tab); }catch(e){}
+    }
+
+    tabButtons.forEach(b=> b.addEventListener('click', ()=>{ const t=b.getAttribute('data-tab'); setActive(t); }));
+
+    // initial: try to restore last tab or default to messages
+    const last = (function(){ try{ return localStorage.getItem('activeTab'); }catch(e){ return null } })() || 'messages';
+    setActive(last);
+  }
+
+  // call initTabs during boot
 let bgRain = null;
 function startBinaryRain(){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -536,3 +561,6 @@ async function animateElementsToBinary(elems){
 
 // Inicializa quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', boot);
+
+// ensure tabs init when boot runs
+document.addEventListener('DOMContentLoaded', ()=>{ try{ if(typeof initTabs === 'function') initTabs(); }catch(e){ console.error('initTabs error', e); } });

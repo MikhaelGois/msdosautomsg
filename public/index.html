@@ -5,156 +5,157 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>MS-DOS — Mensagens (Teams/Requestia) &amp; Senhas</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
   <!-- Removed login redirect: app is now accessible without auth -->
 </head>
 <body>
-  <header class="header">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-      <div>
-        <h1>Message & Password Utility</h1>
-        <div class="prompt">Automatic message, password and e-mail generator</div>
+  <div class="wrapper">
+    <header class="header">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <h1>Message & Password Utility</h1>
+          <div class="prompt">Automatic message, password and e-mail generator</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <label for="themeToggle" style="font-size:13px;color:var(--muted);margin-right:6px">Dark</label>
+          <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode" />
+        </div>
       </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <label for="themeToggle" style="font-size:13px;color:var(--muted);margin-right:6px">Dark</label>
-        <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode" />
+    </header>
+    <!-- navigation column (left) -->
+    <nav>
+      <div class="tabbar">
+        <button class="btn ghost" data-tab="messages">Messages</button>
+        <button class="btn ghost" data-tab="emails">Emails</button>
+        <button class="btn ghost" data-tab="passwords">Passwords</button>
+        <a class="btn ghost" href="/labeler.html">Labeler</a>
+        <a class="btn ghost" href="/admin.html">Admin</a>
+        <div class="tab-analyst"><span class="analyst-name"></span></div>
       </div>
-    </div>
-  </header>
+    </nav>
 
-  <main class="container">
-    <div class="tabbar">
-      <button class="btn ghost" data-tab="messages">Messages</button>
-      <button class="btn ghost" data-tab="emails">Emails</button>
-      <button class="btn ghost" data-tab="passwords">Passwords</button>
-      <a class="btn ghost" href="/labeler.html">Labeler</a>
-      <a class="btn ghost" href="/admin.html">Admin</a>
-      <div class="tab-analyst"><span class="analyst-name"></span></div>
-    </div>
-    <!-- ====== Mensagens de Ticket ====== -->
-    <section class="card" id="messageCard" data-tab="messages">
-      <h2>Mensagens de Ticket</h2>
+    <!-- main content column (right) -->
+    <section>
+      <!-- ====== Mensagens de Ticket ====== -->
+      <section class="card" id="messageCard" data-tab="messages">
+        <h2>Mensagens de Ticket</h2>
 
-      <form id="messageForm" class="form-grid" autocomplete="off">
-        <div class="form-row">
-          <label for="channelSelect">Canal</label>
-          <select id="channelSelect">
-            <option value="teams">Microsoft Teams</option>
-            <option value="requestia">Requestia (encerramento)</option>
-          </select>
-        </div>
+        <form id="messageForm" class="form-grid" autocomplete="off">
+          <div class="form-row">
+            <label for="channelSelect">Canal</label>
+            <select id="channelSelect">
+              <option value="teams">Microsoft Teams</option>
+              <option value="requestia">Requestia (encerramento)</option>
+            </select>
+          </div>
 
-        <div class="form-row">
-          <label for="messageType">Tipo de mensagem</label>
-          <select id="messageType">
-            <option value="progress">Atendimento / Em andamento</option>
-            <option value="closure">Encerramento</option>
-          </select>
-        </div>
+          <div class="form-row">
+            <label for="messageType">Tipo de mensagem</label>
+            <select id="messageType">
+              <option value="progress">Atendimento / Em andamento</option>
+              <option value="closure">Encerramento</option>
+            </select>
+          </div>
 
-        <div class="form-row">
-          <label for="categorySelect">Categoria</label>
-          <select id="categorySelect"></select>
-        </div>
+          <div class="form-row">
+            <label for="categorySelect">Categoria</label>
+            <select id="categorySelect"></select>
+          </div>
 
-        <div class="form-row" id="subcategoryRow">
-          <label for="subcategorySelect">Subcategoria</label>
-          <select id="subcategorySelect"></select>
-        </div>
+          <div class="form-row" id="subcategoryRow">
+            <label for="subcategorySelect">Subcategoria</label>
+            <select id="subcategorySelect"></select>
+          </div>
 
-        <div class="form-row">
-          <label for="ticketId">Ticket</label>
-          <input id="ticketId" type="text" placeholder="#12345" />
-        </div>
+          <div class="form-row">
+            <label for="ticketId">Ticket</label>
+            <input id="ticketId" type="text" placeholder="#12345" />
+          </div>
 
-        <div class="form-row">
-          <label for="requesterName">Nome do usuário</label>
-          <input id="requesterName" type="text" placeholder="Nome do usuário" />
-        </div>
+          <div class="form-row">
+            <label for="requesterName">Nome do usuário</label>
+            <input id="requesterName" type="text" placeholder="Nome do usuário" />
+          </div>
 
-        <div class="form-row">
-          <label for="username">Usuário (login)</label>
-          <input id="username" type="text" placeholder="ex.: jdoe" />
-        </div>
+          <div class="form-row">
+            <label for="username">Usuário (login)</label>
+            <input id="username" type="text" placeholder="ex.: jdoe" />
+          </div>
 
-        <!-- campo 'Atendente' e 'Data/Hora' removidos para simplificar -->
+          <div class="btn-row span-2">
+            <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
+            <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
+            <button type="reset" id="clearMsgBtn" class="btn ghost">Limpar</button>
+          </div>
 
-        <!-- Botões: PT, EN, PT/EN -->
-        <div class="btn-row span-2">
-          <button type="button" id="generateMsgPTBtn" class="btn">Gerar Mensagem</button>
+          <div class="form-row span-2">
+            <label for="output">Mensagem gerada</label>
+            <textarea id="output" rows="12" readonly></textarea>
+          </div>
+        </form>
+      </section>
 
-          <button type="button" id="copyMsgBtn" class="btn">Copiar</button>
-          <!-- Botão Salvar removido (DB desativado) -->
-          <button type="reset" id="clearMsgBtn" class="btn ghost">Limpar</button>
-        </div>
+      <!-- ====== Gerador de Senhas ====== -->
+      <section class="card" id="passwordCard" data-tab="passwords">
+        <h2>Gerador de Senhas (política)</h2>
 
-        <div class="form-row span-2">
-          <label for="output">Mensagem gerada</label>
-          <textarea id="output" rows="12" readonly></textarea>
-        </div>
-      </form>
+        <form id="passwordForm" class="form-grid" autocomplete="off">
+          <div class="form-row">
+            <label for="pwName">Nome do usuário</label>
+            <input id="pwName" type="text" placeholder="Nome completo" />
+          </div>
+
+          <div class="form-row">
+            <label for="pwUsername">Login</label>
+            <input id="pwUsername" type="text" placeholder="login/usuário" />
+          </div>
+
+          <div class="form-row">
+            <label for="pwLength">Comprimento</label>
+            <input id="pwLength" type="number" min="12" value="12" />
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox">
+              <input type="checkbox" id="pwSymbols" checked />
+              <span>Incluir símbolos (!@#$%)</span>
+            </label>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" id="generatePwBtn" class="btn">Gerar senha</button>
+            <button type="button" id="copyPwBtn" class="btn">Copiar</button>
+            <button type="reset" id="clearPwBtn" class="btn ghost">Limpar</button>
+          </div>
+
+          <div class="form-row span-2">
+            <label for="pwOutput">Senha gerada</label>
+            <input id="pwOutput" type="text" readonly />
+          </div>
+
+          <div class="span-2">
+            <p><strong>Política:</strong></p>
+            <ul>
+              <li>Diferencia maiúsculas de minúsculas</li>
+              <li>Mínimo de 12 caracteres</li>
+              <li>Inclui ao menos 1 número</li>
+              <li>Inclui ao menos 1 letra minúscula</li>
+              <li>Inclui ao menos 1 letra maiúscula</li>
+              <li>Não contém parte do nome/login</li>
+              <li>Não contém palavra/seq. comum</li>
+            </ul>
+          </div>
+        </form>
+      </section>
     </section>
-
-    <!-- ====== Gerador de Senhas ====== -->
-    <section class="card" id="passwordCard">
-      <h2>Gerador de Senhas (política)</h2>
-
-      <form id="passwordForm" class="form-grid" autocomplete="off">
-        <div class="form-row">
-          <label for="pwName">Nome do usuário</label>
-          <input id="pwName" type="text" placeholder="Nome completo" />
-        </div>
-
-        <div class="form-row">
-          <label for="pwUsername">Login</label>
-          <input id="pwUsername" type="text" placeholder="login/usuário" />
-        </div>
-
-        <div class="form-row">
-          <label for="pwLength">Comprimento</label>
-          <input id="pwLength" type="number" min="12" value="12" />
-        </div>
-
-        <div class="form-row">
-          <label class="checkbox">
-            <input type="checkbox" id="pwSymbols" checked />
-            <span>Incluir símbolos (!@#$%)</span>
-          </label>
-        </div>
-
-        <div class="btn-row">
-          <button type="button" id="generatePwBtn" class="btn">Gerar senha</button>
-          <button type="button" id="copyPwBtn" class="btn">Copiar</button>
-          <button type="reset" id="clearPwBtn" class="btn ghost">Limpar</button>
-        </div>
-
-        <div class="form-row span-2">
-          <label for="pwOutput">Senha gerada</label>
-          <input id="pwOutput" type="text" readonly />
-        </div>
-
-        <div class="span-2">
-          <p><strong>Política:</strong></p>
-          <ul>
-            <li>Diferencia maiúsculas de minúsculas</li>
-            <li>Mínimo de 12 caracteres</li>
-            <li>Inclui ao menos 1 número</li>
-            <li>Inclui ao menos 1 letra minúscula</li>
-            <li>Inclui ao menos 1 letra maiúscula</li>
-            <li>Não contém parte do nome/login</li>
-            <li>Não contém palavra/seq. comum</li>
-          </ul>
-        </div>
-      </form>
-    </section>
-  </main>
+  </div>
 
   <footer class="footer">
     <small>&copy; 2026 — Message & Password Utility.</small>
   </footer>
 
   
-  <script src="app.js"></script>
-  <script src="email_generator.js"></script>
+  <script src="app.js?v=3"></script>
+  <script src="email_generator.js?v=3"></script>
 </body>
 </html>
