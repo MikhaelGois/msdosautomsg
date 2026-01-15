@@ -225,11 +225,33 @@ app.get('/api/templates', (req,res)=>{
 
 // save a generated template programmatically
 app.post('/api/save-template', (req,res)=>{
-  const { name, text } = req.body || {};
-  if(!name || !text) return res.status(400).json({error:'name and text required'});
-  db.run('INSERT INTO templates (name,text) VALUES (?,?)', [name, text], function(err){
+  const { name, text, overwrite } = req.body || {};
+  const nm = String(name || '').trim();
+  const txt = String(text || '').trim();
+  if(!nm || !txt) return res.status(400).json({error:'name and text required'});
+
+  // check for existing template by name (case-insensitive)
+  db.get('SELECT id,name FROM templates WHERE lower(name)=lower(?)', [nm], (err,row)=>{
     if(err) return res.status(500).json({error:err.message});
-    res.json({id:this.lastID});
+    if(row && !overwrite){
+      // duplicate found and caller did not request overwrite
+      return res.status(409).json({ error: 'template_exists', id: row.id, name: row.name });
+    }
+
+    if(row && overwrite){
+      // update existing record
+      db.run('UPDATE templates SET text=?, createdAt=CURRENT_TIMESTAMP WHERE id=?', [txt, row.id], function(uerr){
+        if(uerr) return res.status(500).json({error:uerr.message});
+        return res.json({ id: row.id, updated: true });
+      });
+      return;
+    }
+
+    // insert new template
+    db.run('INSERT INTO templates (name,text) VALUES (?,?)', [nm, txt], function(ierr){
+      if(ierr) return res.status(500).json({error:ierr.message});
+      res.json({id:this.lastID});
+    });
   });
 });
 
